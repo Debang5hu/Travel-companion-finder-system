@@ -83,14 +83,10 @@ Similarity is computed using cosine similarity.
 The final recommendation score is computed as:
 
 
-final_score =
-w_content * content_score +
-w_cf * cf_score +
-w_geo * geo_score +
-0.1 * cluster_score
+`final_score` = `w_content` * `content_score` + `w_cf` * `cf_score` + `w_geo` * `geo_score` + `0.1` * `cluster_score`
 
 
-Weights (w_content, w_cf, w_geo) are dynamically computed based on the variance of their respective similarity scores, allowing the model to adaptively prioritize the most informative component.
+Weights (`w_content`, `w_cf`, `w_geo`) are dynamically computed based on the variance of their respective similarity scores, allowing the model to adaptively prioritize the most informative component.
 
 
 ## Tech Stack
@@ -158,23 +154,28 @@ JWT_SECRET=your_secret_key
 
 ## How to Run
 
-1. Install dependencies:
+1. Create an `.env` file in the `/backend` and add the required [environment variables](#environment-variables)  
 
-```bash
-pip install -r requirements.txt
-```
-2.  Create a `.env` file and add the required environment variables (see Environment Variables section)
+2. Start the Containers:  
 
-3. Start the server:
+```sh
+# build and start the containers
+docker-compose up -d --build
+```  
 
-```bash      
-python app.py
-```
+3. Stop the Containers:  
 
-4. Server runs on:
-```bash
-http://localhost:8080
-```
+```sh
+# stops and removes the containers and networks
+docker-compose down -v
+```  
+
+4. Server runs on:  
+    - Frontend: `http://localhost`
+    - Backend: `http://localhost:5000`
+
+
+
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](/LICENSE).
