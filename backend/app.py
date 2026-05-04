@@ -42,37 +42,39 @@
 '''
 
 
+import re
 import jwt
 import uuid       # can be implemented in more secure way
+import logging
 import mysql.connector
-from os import getenv
+from os import getenv, makedirs
 from time import sleep
 from functools import wraps
 from flask_cors import CORS
 from dotenv import load_dotenv
+from module.poi import POIService                      # poi
 from geopy.geocoders import Nominatim
 from flask import Flask, request, jsonify
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from datetime import datetime, timedelta
-from recommender import TravelRecommender       # recommendation model
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone, timedelta
+from module.recommender import TravelRecommender       # recommendation model
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 from werkzeug.security import generate_password_hash, check_password_hash
-import logging
-import re
 
 
 #logging
+makedirs("Logs", exist_ok = True)
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
-        logging.FileHandler("app.log"),
+        logging.FileHandler("Logs/app.log"),
         logging.StreamHandler()
     ]
 )
-
-logger = logging.getLogger(__name__)
 
 # init
 app = Flask(__name__)
@@ -81,7 +83,11 @@ load_dotenv()
 app.config["JWT_SECRET"] = getenv("JWT_SECRET")
 app.config["JWT_ALGORITHM"] = "HS256"                                   # symmetric
 app.config["JWT_EXPIRATION_MINUTES"] = 120
+poi_service = POIService()
 recommender = TravelRecommender()
+logger = logging.getLogger(__name__)
+executor = ThreadPoolExecutor(max_workers = 5)
+geolocator = Nominatim(user_agent = "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.1.9) Gecko/20071103 BonEcho/2.0.0.9")     # implememt random UA per call
 
 
 ''' helping functions '''
@@ -99,6 +105,7 @@ def get_db_connection(retries = 5):
             conn = mysql.connector.connect(host = host, user = user, password = password, database = database)
             return conn
         except Exception as e:
+            logger.warning(f"DB connect attempt {attempt}/{retries} failed: {e}")
             sleep(5)
 
     raise Exception("Cannot connect to Database after several retries")
@@ -106,12 +113,13 @@ def get_db_connection(retries = 5):
 
 def generate_token(user_id):
     jti = str(uuid.uuid4())
+    now = datetime.now(timezone.utc)
 
     payload = {
         "user_id": user_id,
         "jti": jti,
-        "exp": datetime.utcnow() + timedelta(minutes = app.config["JWT_EXPIRATION_MINUTES"]),
-        "iat": datetime.utcnow()
+        "exp": now + timedelta(minutes = app.config["JWT_EXPIRATION_MINUTES"]),
+        "iat": now
     }
 
     token = jwt.encode(payload, app.config["JWT_SECRET"], algorithm = app.config["JWT_ALGORITHM"])
@@ -202,8 +210,33 @@ def token_required(f):
 
     return decorated
 
-# implememt random UA per call
-geolocator = Nominatim(user_agent = "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.1.9) Gecko/20071103 BonEcho/2.0.0.9")
+
+# implement poi
+def async_poi_fetch(lat, lon, context = "unknown"):
+    def task():
+        try:
+            conn = poi_service._get_connection()
+            cursor = conn.cursor()
+
+            cursor.execute("""
+                SELECT 1 FROM poi 
+                WHERE latitude BETWEEN %s AND %s
+                AND longitude BETWEEN %s AND %s
+                LIMIT 1
+            """, (lat-0.01, lat+0.01, lon-0.01, lon+0.01))
+
+            if cursor.fetchone():
+                cursor.close()
+                conn.close()
+                return          # already have nearby POIs
+
+            poi_service.get_or_create_pois(lat, lon)
+
+        except Exception as e:
+            logger.warning(f"POI async error ({context}): {str(e)}")
+
+    executor.submit(task)
+
 
 
 
@@ -235,6 +268,13 @@ def create_account():
                 return jsonify({"error": "Invalid age"}), 400
 
 
+        pfp = data.get("pfp")
+        if pfp is not None:
+            if not isinstance(pfp, str) or len(pfp) > 255:
+                logger.warning("Invalid pfp in update_account")
+                return jsonify({"error": "Invalid profile picture"}), 400
+
+
         required_fields = [
             "username", "password",
             "age", "budget",
@@ -260,6 +300,10 @@ def create_account():
 
             latitude = location.latitude
             longitude = location.longitude
+
+            # implement poi 
+            if latitude is not None and longitude is not None:
+                async_poi_fetch(latitude, longitude, "create_account")
 
         except (GeocoderTimedOut, GeocoderServiceError):
             logger.error(f"Geocoding failed for destination '{destination}'")
@@ -297,9 +341,10 @@ def create_account():
             travel_month,
             destination,
             latitude,
-            longitude
+            longitude,
+            pfp
         )
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
         """
 
         values = (
@@ -315,7 +360,8 @@ def create_account():
             int(data["travel_month"]),
             destination,
             latitude,
-            longitude
+            longitude,
+            pfp
         )
 
         cursor.execute(query, values)
@@ -351,6 +397,7 @@ def update_account():
         trekking = data.get("trekking")
         culture = data.get("culture")
         adventure = data.get("adventure")
+        pfp = data.get("pfp")
         travel_month = data.get("travel_month")
         destination = data.get("destination")
 
@@ -366,6 +413,12 @@ def update_account():
             if not isinstance(age, int) or age <= 0 or age > 100:
                 logger.warning("Invalid age in update_account")
                 return jsonify({"error": "Invalid age"}), 400
+
+        # bad implementation (need to modify later for actual image [png,jpg,jpeg])
+        if pfp is not None:
+            if not isinstance(pfp, str) or len(pfp) > 255:
+                logger.warning("Invalid pfp in update_account")
+                return jsonify({"error": "Invalid profile picture"}), 400
 
         
         latitude = None
@@ -383,6 +436,10 @@ def update_account():
 
                 latitude = location.latitude
                 longitude = location.longitude
+
+                # implement poi
+                if latitude is not None and longitude is not None:
+                    async_poi_fetch(latitude, longitude, "update_account")
 
             except (GeocoderTimedOut, GeocoderServiceError):
                 logger.error(f"Geocoding failed for destination '{destination}'")
@@ -402,7 +459,8 @@ def update_account():
             travel_month = COALESCE(%s, travel_month),
             destination = COALESCE(%s, destination),
             latitude = COALESCE(%s, latitude),
-            longitude = COALESCE(%s, longitude)
+            longitude = COALESCE(%s, longitude),
+            pfp = COALESCE(%s, pfp)
         WHERE user_id = %s
         """
 
@@ -417,6 +475,7 @@ def update_account():
             destination,
             latitude,
             longitude,
+            pfp,
             user_id
         )
 
@@ -570,7 +629,7 @@ def logout():
 ''' to do '''
 @app.route("/api/reset-passwd", methods = [ "POST" ])
 def reset_passwd():
-    pass
+    return jsonify({"error": "Not implemented"}), 501
 
 
 
@@ -624,6 +683,10 @@ def create_group():
 
             latitude = location.latitude
             longitude = location.longitude
+
+            # implement poi
+            if latitude is not None and longitude is not None:
+                async_poi_fetch(latitude, longitude, "create_group")
 
         except (GeocoderTimedOut, GeocoderServiceError):
             logger.error(f"Geocoding failed for destination '{destination}'")
@@ -1279,13 +1342,13 @@ def send_private_message():
 
         sender_id = request.user_id
         receiver_id = data.get("receiver_id")
-        message = data.get("message").strip()
+        message = data.get("message","").strip()
 
         if not receiver_id or not message:
             return jsonify({"error": "receiver_id and message required"}), 400
 
-        if not message:
-            return jsonify({"error": "Message cannot be empty"}), 400
+        '''if not message:
+            return jsonify({"error": "Message cannot be empty"}), 400'''
 
         if len(message) > 2000:
             return jsonify({"error": "Message too long"}), 400
@@ -1571,6 +1634,26 @@ def recommend():
         
         cursor.close()
         conn.close()
+
+        # ensure POIs exist near user
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary = True)
+
+            cursor.execute(
+                "SELECT latitude, longitude FROM users WHERE user_id=%s",
+                (user_id,)
+            )
+            user = cursor.fetchone()
+
+            cursor.close()
+            conn.close()
+
+            if user and user["latitude"] is not None and user["longitude"] is not None:
+                async_poi_fetch(user["latitude"], user["longitude"], "recommend")
+
+        except Exception as e:
+            logger.warning(f"POI error (recommend): {str(e)}")
 
         # call model
         results = recommender.recommend(user_id = user_id, top_n = int(top_n)) or []

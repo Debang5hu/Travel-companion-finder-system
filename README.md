@@ -83,7 +83,7 @@ Similarity is computed using cosine similarity.
 The final recommendation score is computed as:
 
 
-`final_score` = `w_content` * `content_score` + `w_cf` * `cf_score` + `w_geo` * `geo_score` + `0.1` * `cluster_score`
+`final_score` = `w_content * content_score` + `w_cf * cf_score` + `w_geo * geo_score` + `0.1 * cluster_score`
 
 
 Weights (`w_content`, `w_cf`, `w_geo`) are dynamically computed based on the variance of their respective similarity scores, allowing the model to adaptively prioritize the most informative component.
@@ -111,6 +111,7 @@ DB_USER=your_user
 DB_PASSWD=your_password
 DB=your_database
 JWT_SECRET=your_secret_key
+OPENTRIPMAP_KEY=your_api_key
 ```
 
 
