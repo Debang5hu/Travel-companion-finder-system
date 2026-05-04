@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MyTripMate — Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .loc-edit-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .loc-edit-row:last-child { border-bottom: none; }
+    .loc-edit-icon { color: var(--purple-light); width: 18px; font-size: 14px; flex-shrink: 0; }
+    .loc-edit-content { flex: 1; min-width: 0; }
+    .loc-edit-label { font-size: .72rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+    .loc-edit-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px dashed var(--border-2);
+      padding: 4px 0;
+      font-size: .9rem;
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .loc-edit-input:focus { border-bottom-color: var(--purple-light); }
+    .loc-edit-input::placeholder { color: var(--text-faint); }
+    .loc-save-btn {
+      margin-top: 14px;
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+      color: #fff;
+      font-size: .88rem;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 4px 16px var(--purple-glow);
+      transition: opacity .2s;
+    }
+    .loc-save-btn:hover { opacity: .88; }
+    .save-toast {
+      display: none;
+      text-align: center;
+      font-size: .78rem;
+      color: var(--purple-light);
+      margin-top: 8px;
+      font-weight: 600;
+    }
+    .save-toast.show { display: block; }
+  </style>
+</head>
+<body>
+<div style="padding-bottom:80px;">
+
+  <!-- Profile Hero -->
+  <div class="profile-hero">
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar-big" id="profileAvatar"><i class="fa-solid fa-user"></i></div>
+    </div>
+    <div class="profile-name" id="profileName">Traveller</div>
+    <div class="profile-handle" id="profileHandle">@mytripmate</div>
+    <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:8px;" id="profileEmail"></div>
+    <button onclick="window.location.href='onboarding.html'" style="padding:9px 20px;border-radius:50px;border:1.5px solid var(--border-2);background:var(--bg-card);color:var(--text-muted);font-size:.82rem;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;">Edit Preferences</button>
+    <div class="profile-stats">
+      <div class="profile-stat"><div class="profile-stat-num" id="statTrips">0</div><div class="profile-stat-label">Trips</div></div>
+      <div class="profile-stat"><div class="profile-stat-num" id="statGroups">0</div><div class="profile-stat-label">Groups</div></div>
+      <div class="profile-stat"><div class="profile-stat-num">4.9</div><div class="profile-stat-label">Rating</div></div>
+    </div>
+  </div>
+
+  <div class="profile-body">
+
+    <!-- Location Section (editable) -->
+    <div class="profile-section">
+      <h3>My Locations</h3>
+      <div class="loc-edit-row">
+        <i class="fa-solid fa-location-dot loc-edit-icon"></i>
+        <div class="loc-edit-content">
+          <div class="loc-edit-label">Current Location</div>
+          <input class="loc-edit-input" id="editCurrentLoc" type="text" placeholder="e.g. Kolkata, India"/>
+        </div>
+      </div>
+      <div class="loc-edit-row">
+        <i class="fa-solid fa-plane-departure loc-edit-icon"></i>
+        <div class="loc-edit-content">
+          <div class="loc-edit-label">Preferred Destination</div>
+          <input class="loc-edit-input" id="editPreferredDest" type="text" placeholder="e.g. Paris, Bali, Himalayas..."/>
+        </div>
+      </div>
+      <button class="loc-save-btn" onclick="saveLocations()">
+        <i class="fa-solid fa-floppy-disk" style="margin-right:6px;"></i> Save Locations
+      </button>
+      <div class="save-toast" id="saveToast">✓ Locations saved successfully!</div>
+    </div>
+
+    <!-- Travel Preferences -->
+    <div class="profile-section" id="prefsSection" style="display:none;">
+      <h3>Travel Preferences</h3>
+      <div id="prefTags"></div>
+    </div>
+
+    <!-- Joined Groups -->
+    <div class="profile-section">
+      <h3>My Groups</h3>
+      <div id="myGroups"></div>
+    </div>
+
+    <!-- Settings -->
+    <div class="profile-section">
+      <h3>Account</h3>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);">
+          <span style="font-size:.9rem;display:flex;align-items:center;gap:10px;color:var(--text-muted);"><i class="fa-solid fa-moon" style="color:var(--purple-light);width:16px;"></i> Dark / Light Mode</span>
+          <label class="toggle-switch"><input type="checkbox" id="themeToggle" onchange="toggleTheme()"/><span class="toggle-slider"></span></label>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;">
+          <span style="font-size:.9rem;display:flex;align-items:center;gap:10px;color:var(--text-muted);"><i class="fa-solid fa-bell" style="color:var(--purple-light);width:16px;"></i> Notifications</span>
+          <i class="fa-solid fa-chevron-right" style="color:var(--text-faint);font-size:12px;"></i>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;">
+          <span style="font-size:.9rem;display:flex;align-items:center;gap:10px;color:var(--text-muted);"><i class="fa-solid fa-shield-halved" style="color:var(--purple-light);width:16px;"></i> Privacy & Safety</span>
+          <i class="fa-solid fa-chevron-right" style="color:var(--text-faint);font-size:12px;"></i>
+        </div>
+        <div style="padding:12px 0;cursor:pointer;" onclick="logout()">
+          <span style="font-size:.9rem;display:flex;align-items:center;gap:10px;color:#ef4444;"><i class="fa-solid fa-right-to-bracket" style="width:16px;"></i> Log Out</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <button class="bottom-nav-item" onclick="window.location.href='home.html'"><i class="fa-solid fa-house"></i><span>Home</span></button>
+  <button class="bottom-nav-item" onclick="window.location.href='create-group.html'"><i class="fa-solid fa-plus"></i><span>Post</span></button>
+  <button class="bottom-nav-item" onclick="window.location.href='explore.html'"><i class="fa-solid fa-globe"></i><span>Explore</span></button>
+  <button class="bottom-nav-item" onclick="window.location.href='messages.html'"><i class="fa-solid fa-message"></i><span>Chat</span></button>
+  <button class="bottom-nav-item active"><i class="fa-solid fa-user"></i><span>Profile</span></button>
+</nav>
+
+<script src="js/data.js"></script>
+<script>
+  const saved = localStorage.getItem('mtm-theme')||'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  const toggle = document.getElementById('themeToggle');
+  if(toggle) toggle.checked = saved === 'light';
+
+  function toggleTheme(){
+    const h=document.documentElement, isL=h.getAttribute('data-theme')==='light';
+    h.setAttribute('data-theme', isL?'dark':'light');
+    localStorage.setItem('mtm-theme', isL?'dark':'light');
+    if(toggle) toggle.checked=!isL;
+  }
+
+  const user = JSON.parse(sessionStorage.getItem('mtm_user')||'{}');
+
+  // Fill profile info
+  if(user.name)     document.getElementById('profileName').textContent = user.name;
+  if(user.username) document.getElementById('profileHandle').textContent = user.username;
+  if(user.email)    document.getElementById('profileEmail').textContent = user.email;
+  if(user.avatar){
+    document.getElementById('profileAvatar').innerHTML = `<img src="${user.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"/>`;
+  }
+
+  // Pre-fill location inputs from saved data
+  if(user.currentLocation) document.getElementById('editCurrentLoc').value = user.currentLocation;
+  if(user.preferredDest)   document.getElementById('editPreferredDest').value = user.preferredDest;
+
+  // Save locations
+  function saveLocations() {
+    const currentLocation = document.getElementById('editCurrentLoc').value.trim();
+    const preferredDest   = document.getElementById('editPreferredDest').value.trim();
+    const updated = {...user, currentLocation, preferredDest};
+    sessionStorage.setItem('mtm_user', JSON.stringify(updated));
+    // Show toast
+    const toast = document.getElementById('saveToast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // Preferences tags
+  const prefs = [...(user.terrain||[]), ...(user.style||[])];
+  if(prefs.length){
+    document.getElementById('prefsSection').style.display='block';
+    document.getElementById('prefTags').innerHTML = prefs.map(p=>`<span class="pref-tag"><i class="fa-solid fa-tag"></i>${p}</span>`).join('');
+  }
+
+  // Joined groups
+  const joinedIds = JSON.parse(sessionStorage.getItem('mtm_joined')||'[]');
+  const joinedTrips = trips.filter(t=>joinedIds.includes(t.id));
+  document.getElementById('statGroups').textContent = joinedTrips.length;
+  document.getElementById('statTrips').textContent  = joinedTrips.length;
+
+  const myGroupsEl = document.getElementById('myGroups');
+  if(!joinedTrips.length){
+    myGroupsEl.innerHTML=`<p style="font-size:.85rem;color:var(--text-muted);text-align:center;padding:16px 0;">You haven't joined any groups yet.<br/><span onclick="window.location.href='explore.html'" style="color:var(--purple-light);cursor:pointer;font-weight:600;">Explore trips →</span></p>`;
+  } else {
+    myGroupsEl.innerHTML=`<div class="profile-trips-grid">${joinedTrips.map(t=>`
+      <div class="profile-trip-thumb" onclick="openDetail(${t.id})">
+        <img src="${t.image}" alt="${t.dest}" loading="lazy"/>
+        <div class="pt-label">${t.dest}</div>
+      </div>`).join('')}</div>`;
+  }
+
+  function logout(){sessionStorage.clear();window.location.href='index.html';}
+</script>
+</body>
+</html>
