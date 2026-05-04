@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MyTripMate — About You</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .rating-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);}
+    .rating-item:last-child{border-bottom:none;}
+    .rating-label{font-size:.95rem;font-weight:500;color:var(--text);display:flex;align-items:center;gap:10px;}
+    .rating-label span{font-size:1.3rem;}
+    .rating-circles{display:flex;gap:8px;align-items:center;}
+    .r-circle{width:34px;height:34px;border-radius:50%;border:2px solid var(--border-2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--text-faint);transition:all 0.2s ease;font-family:'Outfit',sans-serif;}
+    .r-circle.active{border-color:var(--purple-light);background:linear-gradient(135deg,var(--purple),var(--purple-dark));color:#fff;box-shadow:0 0 14px rgba(123,79,166,0.5);}
+    .r-circle:hover{border-color:var(--purple-light);color:var(--purple-light);transform:scale(1.1);}
+    .rating-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:4px 16px;margin-bottom:20px;}
+    .rating-hint{display:flex;justify-content:space-between;font-size:.72rem;color:var(--text-faint);margin-bottom:16px;padding:0 2px;}
+
+    /* Location step */
+    .loc-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:16px;}
+    .loc-card label{font-size:.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+    .loc-card label i{color:var(--purple-light);}
+    .loc-card input{width:100%;background:var(--input-bg);border:1px solid var(--border-2);border-radius:10px;padding:12px 16px;font-size:14px;color:var(--text);font-family:'Outfit',sans-serif;outline:none;transition:border-color .2s;}
+    .loc-card input:focus{border-color:var(--purple-light);}
+    .loc-card input::placeholder{color:var(--text-faint);}
+    .loc-note{font-size:.75rem;color:var(--text-faint);margin-top:8px;display:flex;align-items:center;gap:6px;}
+    .loc-note i{color:var(--purple-light);font-size:.7rem;}
+  </style>
+</head>
+<body>
+<div class="onboard-wrap">
+  <div style="max-width:480px;margin:0 auto;">
+    <div class="step-dots" id="stepDots"></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    <!-- Step 1: Terrain -->
+    <div class="step active" id="step-1">
+      <span class="step-emoji">🏔️</span>
+      <h2 class="step-title">Rate your terrain!</h2>
+      <p class="step-sub">How much do you love each landscape? Rate 1 (not my thing) to 5 (absolutely love it).</p>
+      <div class="rating-hint"><span>1 = Not for me</span><span>5 = Absolutely love it</span></div>
+      <div class="rating-card">
+        <div class="rating-item"><div class="rating-label"><span>🏖️</span> Beach</div><div class="rating-circles" data-key="Beach"><div class="r-circle" data-val="1" onclick="setRating(this,'terrain','Beach',1)">1</div><div class="r-circle" data-val="2" onclick="setRating(this,'terrain','Beach',2)">2</div><div class="r-circle" data-val="3" onclick="setRating(this,'terrain','Beach',3)">3</div><div class="r-circle" data-val="4" onclick="setRating(this,'terrain','Beach',4)">4</div><div class="r-circle" data-val="5" onclick="setRating(this,'terrain','Beach',5)">5</div></div></div>
+        <div class="rating-item"><div class="rating-label"><span>🏔️</span> Mountains</div><div class="rating-circles" data-key="Mountains"><div class="r-circle" data-val="1" onclick="setRating(this,'terrain','Mountains',1)">1</div><div class="r-circle" data-val="2" onclick="setRating(this,'terrain','Mountains',2)">2</div><div class="r-circle" data-val="3" onclick="setRating(this,'terrain','Mountains',3)">3</div><div class="r-circle" data-val="4" onclick="setRating(this,'terrain','Mountains',4)">4</div><div class="r-circle" data-val="5" onclick="setRating(this,'terrain','Mountains',5)">5</div></div></div>
+        <div class="rating-item"><div class="rating-label"><span>🌲</span> Forests</div><div class="rating-circles" data-key="Forests"><div class="r-circle" data-val="1" onclick="setRating(this,'terrain','Forests',1)">1</div><div class="r-circle" data-val="2" onclick="setRating(this,'terrain','Forests',2)">2</div><div class="r-circle" data-val="3" onclick="setRating(this,'terrain','Forests',3)">3</div><div class="r-circle" data-val="4" onclick="setRating(this,'terrain','Forests',4)">4</div><div class="r-circle" data-val="5" onclick="setRating(this,'terrain','Forests',5)">5</div></div></div>
+        <div class="rating-item"><div class="rating-label"><span>🏜️</span> Desert</div><div class="rating-circles" data-key="Desert"><div class="r-circle" data-val="1" onclick="setRating(this,'terrain','Desert',1)">1</div><div class="r-circle" data-val="2" onclick="setRating(this,'terrain','Desert',2)">2</div><div class="r-circle" data-val="3" onclick="setRating(this,'terrain','Desert',3)">3</div><div class="r-circle" data-val="4" onclick="setRating(this,'terrain','Desert',4)">4</div><div class="r-circle" data-val="5" onclick="setRating(this,'terrain','Desert',5)">5</div></div></div>
+        <div class="rating-item"><div class="rating-label"><span>🌊</span> Islands</div><div class="rating-circles" data-key="Islands"><div class="r-circle" data-val="1" onclick="setRating(this,'terrain','Islands',1)">1</div><div class="r-circle" data-val="2" onclick="setRating(this,'terrain','Islands',2)">2</div><div class="r-circle" data-val="3" onclick="setRating(this,'terrain','Islands',3)">3</div><div class="r-circle" data-val="4" onclick="setRating(this,'terrain','Islands',4)">4</div><div class="r-circle" data-val="5" onclick="setRating(this,'terrain','Islands',5)">5</div></div></div>
+        <div class="rating-item"><div class="rating-label"><span>🏙️</span> Cities</div><div class="rating-circles" data-key="Cities"><div class="r-circle" data-val="1" onclick="setRating(this,'terrain','Cities',1)">1</div><div class="r-circle" data-val="2" onclick="setRating(this,'terrain','Cities',2)">2</div><div class="r-circle" data-val="3" onclick="setRating(this,'terrain','Cities',3)">3</div><div class="r-circle" data-val="4" onclick="setRating(this,'terrain','Cities',4)">4</div><div class="r-circle" data-val="5" onclick="setRating(this,'terrain','Cities',5)">5</div></div></div>
+        <div class="rating-item"><div class="rating-label"><span>🌾</span> Countryside</div><div class="rating-circles" data-key="Countryside"><div class="r-circle" data-val="1" onclick="setRating(this,'terrain','Countryside',1)">1</div><div class="r-circle" data-val="2" onclick="setRating(this,'terrain','Countryside',2)">2</div><div class="r-circle" data-val="3" onclick="setRating(this,'terrain','Countryside',3)">3</div><div class="r-circle" data-val="4" onclick="setRating(this,'terrain','Countryside',4)">4</div><div class="r-circle" data-val="5" onclick="setRating(this,'terrain','Countryside',5)">5</div></div></div>
+      </div>
+      <div class="step-actions"><button class="btn-step-next" onclick="nextStep()">Continue →</button></div>
+    </div>
+
+    <!-- Step 2: Style -->
+    <div class="step" id="step-2">
+      <span class="step-emoji">🎒</span>
+      <h2 class="step-title">Rate your travel style!</h2>
+      <p class="step-sub">How much does each style match you? Rate 1 to 5.</p>
+      <div class="rating-hint"><span>1 = Not me at all</span><span>5 = That's totally me</span></div>
+      <div class="rating-card">
+        <div class="rating-item"><div class="rating-label"><span>🎭</span> Cultural</div><div class="rating-circles" data-key="Cultural"><div class="r-circle" data-val="1" onclick="setRating(this,'style','Cultural',1)">1</div><div class="r-circle" data-val="2" onclick="setRating(this,'style','Cultural',2)">2</div><div class="r-circle" data-val="3" onclick="setRating(this,'style','Cultural',3)">3</div><div class="r-circle" data-val="4" onclick="setRating(this,'style','Cultural',4)">4</div><div class="r-circle" data-val="5" onclick="setRating(this,'style','Cultural',5)">5</div></div></div>
+        <div class="rating-item"><div class="rating-label"><span>⚡</span> Adventurous</div><div class="rating-circles" data-key="Adventurous"><div class="r-circle" data-val="1" onclick="setRating(this,'style','Adventurous',1)">1</div><div class="r-circle" data-val="2" onclick="setRating(this,'style','Adventurous',2)">2</div><div class="r-circle" data-val="3" onclick="setRating(this,'style','Adventurous',3)">3</div><div class="r-circle" data-val="4" onclick="setRating(this,'style','Adventurous',4)">4</div><div class="r-circle" data-val="5" onclick="setRating(this,'style','Adventurous',5)">5</div></div></div>
+        <div class="rating-item"><div class="rating-label"><span>🥾</span> Trekking</div><div class="rating-circles" data-key="Trekking"><div class="r-circle" data-val="1" onclick="setRating(this,'style','Trekking',1)">1</div><div class="r-circle" data-val="2" onclick="setRating(this,'style','Trekking',2)">2</div><div class="r-circle" data-val="3" onclick="setRating(this,'style','Trekking',3)">3</div><div class="r-circle" data-val="4" onclick="setRating(this,'style','Trekking',4)">4</div><div class="r-circle" data-val="5" onclick="setRating(this,'style','Trekking',5)">5</div></div></div>
+        <div class="rating-item"><div class="rating-label"><span>🧘</span> Spiritual</div><div class="rating-circles" data-key="Spiritual"><div class="r-circle" data-val="1" onclick="setRating(this,'style','Spiritual',1)">1</div><div class="r-circle" data-val="2" onclick="setRating(this,'style','Spiritual',2)">2</div><div class="r-circle" data-val="3" onclick="setRating(this,'style','Spiritual',3)">3</div><div class="r-circle" data-val="4" onclick="setRating(this,'style','Spiritual',4)">4</div><div class="r-circle" data-val="5" onclick="setRating(this,'style','Spiritual',5)">5</div></div></div>
+        <div class="rating-item"><div class="rating-label"><span>🍜</span> Food & Cuisine</div><div class="rating-circles" data-key="Food"><div class="r-circle" data-val="1" onclick="setRating(this,'style','Food',1)">1</div><div class="r-circle" data-val="2" onclick="setRating(this,'style','Food',2)">2</div><div class="r-circle" data-val="3" onclick="setRating(this,'style','Food',3)">3</div><div class="r-circle" data-val="4" onclick="setRating(this,'style','Food',4)">4</div><div class="r-circle" data-val="5" onclick="setRating(this,'style','Food',5)">5</div></div></div>
+        <div class="rating-item"><div class="rating-label"><span>📸</span> Photography</div><div class="rating-circles" data-key="Photography"><div class="r-circle" data-val="1" onclick="setRating(this,'style','Photography',1)">1</div><div class="r-circle" data-val="2" onclick="setRating(this,'style','Photography',2)">2</div><div class="r-circle" data-val="3" onclick="setRating(this,'style','Photography',3)">3</div><div class="r-circle" data-val="4" onclick="setRating(this,'style','Photography',4)">4</div><div class="r-circle" data-val="5" onclick="setRating(this,'style','Photography',5)">5</div></div></div>
+        <div class="rating-item"><div class="rating-label"><span>💰</span> Budget Travel</div><div class="rating-circles" data-key="Budget Travel"><div class="r-circle" data-val="1" onclick="setRating(this,'style','Budget Travel',1)">1</div><div class="r-circle" data-val="2" onclick="setRating(this,'style','Budget Travel',2)">2</div><div class="r-circle" data-val="3" onclick="setRating(this,'style','Budget Travel',3)">3</div><div class="r-circle" data-val="4" onclick="setRating(this,'style','Budget Travel',4)">4</div><div class="r-circle" data-val="5" onclick="setRating(this,'style','Budget Travel',5)">5</div></div></div>
+        <div class="rating-item"><div class="rating-label"><span>✨</span> Luxury</div><div class="rating-circles" data-key="Luxury"><div class="r-circle" data-val="1" onclick="setRating(this,'style','Luxury',1)">1</div><div class="r-circle" data-val="2" onclick="setRating(this,'style','Luxury',2)">2</div><div class="r-circle" data-val="3" onclick="setRating(this,'style','Luxury',3)">3</div><div class="r-circle" data-val="4" onclick="setRating(this,'style','Luxury',4)">4</div><div class="r-circle" data-val="5" onclick="setRating(this,'style','Luxury',5)">5</div></div></div>
+      </div>
+      <div class="step-actions">
+        <button class="btn-step-back" onclick="prevStep()">← Back</button>
+        <button class="btn-step-next" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Location (NEW) -->
+    <div class="step" id="step-3">
+      <span class="step-emoji">📍</span>
+      <h2 class="step-title">Where are you?</h2>
+      <p class="step-sub">Tell us your current location and where you dream of travelling to. You can update these anytime from your profile.</p>
+
+      <div class="loc-card">
+        <label><i class="fa-solid fa-location-dot"></i> Current Location</label>
+        <input type="text" id="currentLocationInput" placeholder="e.g. Kolkata, India" oninput="prefs.currentLocation=this.value"/>
+        <p class="loc-note"><i class="fa-solid fa-circle-info"></i> Helps find companions near you</p>
+      </div>
+
+      <div class="loc-card">
+        <label><i class="fa-solid fa-plane-departure"></i> Preferred Destination</label>
+        <input type="text" id="preferredDestInput" placeholder="e.g. Paris, Bali, Himalayas..." oninput="prefs.preferredDest=this.value"/>
+        <p class="loc-note"><i class="fa-solid fa-circle-info"></i> Used for geo-tag based companion matching</p>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn-step-back" onclick="prevStep()">← Back</button>
+        <button class="btn-step-next" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Age -->
+    <div class="step" id="step-4">
+      <span class="step-emoji">🎂</span>
+      <h2 class="step-title">How old are you?</h2>
+      <p class="step-sub">Helps us find companions in your age range.</p>
+      <div class="age-display" id="ageDisplay">22</div>
+      <input type="range" class="range-input" id="ageRange" min="18" max="60" value="22" oninput="updateAge(this)"/>
+      <div class="range-labels"><span>18</span><span>60+</span></div>
+      <div class="step-actions">
+        <button class="btn-step-back" onclick="prevStep()">← Back</button>
+        <button class="btn-step-next" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Travel Months -->
+    <div class="step" id="step-5">
+      <span class="step-emoji">📅</span>
+      <h2 class="step-title">When do you travel?</h2>
+      <p class="step-sub">Pick your preferred travel months.</p>
+      <div class="months-grid">
+        <div class="month-chip" onclick="toggleMonth(this)">Jan</div>
+        <div class="month-chip" onclick="toggleMonth(this)">Feb</div>
+        <div class="month-chip" onclick="toggleMonth(this)">Mar</div>
+        <div class="month-chip" onclick="toggleMonth(this)">Apr</div>
+        <div class="month-chip" onclick="toggleMonth(this)">May</div>
+        <div class="month-chip" onclick="toggleMonth(this)">Jun</div>
+        <div class="month-chip" onclick="toggleMonth(this)">Jul</div>
+        <div class="month-chip" onclick="toggleMonth(this)">Aug</div>
+        <div class="month-chip" onclick="toggleMonth(this)">Sep</div>
+        <div class="month-chip" onclick="toggleMonth(this)">Oct</div>
+        <div class="month-chip" onclick="toggleMonth(this)">Nov</div>
+        <div class="month-chip" onclick="toggleMonth(this)">Dec</div>
+      </div>
+      <div class="step-actions">
+        <button class="btn-step-back" onclick="prevStep()">← Back</button>
+        <button class="btn-step-next" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 6: Gender -->
+    <div class="step" id="step-6">
+      <span class="step-emoji">🌈</span>
+      <h2 class="step-title">How do you identify?</h2>
+      <p class="step-sub">Optional — helps personalise your experience.</p>
+      <div class="chip-group" id="chips-gender">
+        <div class="chip" onclick="selectSingle(this,'gender')">Man</div>
+        <div class="chip" onclick="selectSingle(this,'gender')">Woman</div>
+        <div class="chip" onclick="selectSingle(this,'gender')">Non-binary</div>
+        <div class="chip" onclick="selectSingle(this,'gender')">Prefer not to say</div>
+      </div>
+      <div class="step-actions">
+        <button class="btn-step-back" onclick="prevStep()">← Back</button>
+        <button class="btn-step-next" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 7: Budget -->
+    <div class="step" id="step-7">
+      <span class="step-emoji">💸</span>
+      <h2 class="step-title">What's your budget?</h2>
+      <p class="step-sub">Per trip — helps us match you with the right groups.</p>
+      <div class="chip-group" id="chips-budget">
+        <div class="chip" onclick="selectSingle(this,'budget')">🪙 Under ₹30,000</div>
+        <div class="chip" onclick="selectSingle(this,'budget')">💵 ₹30k – ₹80k</div>
+        <div class="chip" onclick="selectSingle(this,'budget')">💎 ₹80k – ₹1.5L</div>
+        <div class="chip" onclick="selectSingle(this,'budget')">🛩️ ₹1.5L+</div>
+      </div>
+      <div class="step-actions">
+        <button class="btn-step-back" onclick="prevStep()">← Back</button>
+        <button class="btn-step-next" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 8: Username & Avatar -->
+    <div class="step" id="step-8">
+      <span class="step-emoji">🪪</span>
+      <h2 class="step-title">Set up your profile</h2>
+      <p class="step-sub">Choose a username and pick an avatar.</p>
+      <div class="form-group" style="margin-bottom:20px;">
+        <label style="font-size:.8rem;font-weight:500;color:var(--text-muted);display:block;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">
+          <i class="fa-solid fa-at" style="color:var(--purple-light);margin-right:6px;"></i>Username
+        </label>
+        <input type="text" id="usernameInput" placeholder="@your_handle"
+          style="width:100%;background:var(--input-bg);border:1px solid var(--border-2);border-radius:10px;padding:12px 16px;font-size:14px;color:var(--text);font-family:'Outfit',sans-serif;outline:none;"
+          oninput="prefs.username=this.value"/>
+      </div>
+      <p style="font-size:.8rem;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Choose Avatar</p>
+      <div class="avatar-grid">
+        <div class="avatar-option" onclick="selectAvatar(this,'https://i.pravatar.cc/150?img=1')"><img src="https://i.pravatar.cc/150?img=1"/><div class="avatar-check">✓</div></div>
+        <div class="avatar-option" onclick="selectAvatar(this,'https://i.pravatar.cc/150?img=5')"><img src="https://i.pravatar.cc/150?img=5"/><div class="avatar-check">✓</div></div>
+        <div class="avatar-option" onclick="selectAvatar(this,'https://i.pravatar.cc/150?img=9')"><img src="https://i.pravatar.cc/150?img=9"/><div class="avatar-check">✓</div></div>
+        <div class="avatar-option" onclick="selectAvatar(this,'https://i.pravatar.cc/150?img=12')"><img src="https://i.pravatar.cc/150?img=12"/><div class="avatar-check">✓</div></div>
+        <div class="avatar-option" onclick="selectAvatar(this,'https://i.pravatar.cc/150?img=20')"><img src="https://i.pravatar.cc/150?img=20"/><div class="avatar-check">✓</div></div>
+        <div class="avatar-option" onclick="selectAvatar(this,'https://i.pravatar.cc/150?img=25')"><img src="https://i.pravatar.cc/150?img=25"/><div class="avatar-check">✓</div></div>
+      </div>
+      <div class="step-actions">
+        <button class="btn-step-back" onclick="prevStep()">← Back</button>
+        <button class="btn-step-next" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 9: Summary -->
+    <div class="step" id="step-9">
+      <span class="step-emoji">🚀</span>
+      <h2 class="step-title">You're all set!</h2>
+      <p class="step-sub">Here's your travel profile summary.</p>
+      <div class="summary-card" id="summaryCard" style="margin-bottom:24px;"></div>
+      <div class="step-actions">
+        <button class="btn-step-back" onclick="prevStep()">← Edit</button>
+        <button class="btn-step-next" onclick="finish()">Start Exploring 🌍</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const saved = localStorage.getItem('mtm-theme')||'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+
+  const TOTAL = 9;
+  let current = 1;
+  const prefs = {
+    terrainRatings:{}, styleRatings:{},
+    terrain:[], style:[],
+    currentLocation:'', preferredDest:'',
+    age:22, months:[], gender:'', budget:'', username:'', avatar:''
+  };
+
+  function renderDots() {
+    const c=document.getElementById('stepDots');
+    c.innerHTML='';
+    for(let i=1;i<=TOTAL;i++){const d=document.createElement('div');d.className='step-dot'+(i===current?' active':'');c.appendChild(d);}
+    document.getElementById('progressFill').style.width=((current/TOTAL)*100)+'%';
+  }
+
+  function nextStep(){document.getElementById('step-'+current).classList.remove('active');current++;document.getElementById('step-'+current).classList.add('active');if(current===9)renderSummary();renderDots();window.scrollTo(0,0);}
+  function prevStep(){if(current===1)return;document.getElementById('step-'+current).classList.remove('active');current--;document.getElementById('step-'+current).classList.add('active');renderDots();window.scrollTo(0,0);}
+
+  function setRating(el,type,key,val){
+    el.closest('.rating-circles').querySelectorAll('.r-circle').forEach(c=>c.classList.remove('active'));
+    el.classList.add('active');
+    if(type==='terrain') prefs.terrainRatings[key]=val;
+    else prefs.styleRatings[key]=val;
+    prefs.terrain=Object.entries(prefs.terrainRatings).filter(([,v])=>v>=3).map(([k])=>k.toLowerCase());
+    prefs.style=Object.entries(prefs.styleRatings).filter(([,v])=>v>=3).map(([k])=>k.toLowerCase());
+  }
+
+  function selectSingle(el,key){el.closest('.chip-group').querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');prefs[key]=el.textContent.trim();}
+  function toggleMonth(el){el.classList.toggle('selected');const m=el.textContent.trim();if(el.classList.contains('selected')){if(!prefs.months.includes(m))prefs.months.push(m);}else{prefs.months=prefs.months.filter(v=>v!==m);}}
+  function updateAge(el){prefs.age=parseInt(el.value);document.getElementById('ageDisplay').textContent=prefs.age;}
+  function selectAvatar(el,url){document.querySelectorAll('.avatar-option').forEach(a=>a.classList.remove('selected'));el.classList.add('selected');prefs.avatar=url;}
+
+  function renderSummary(){
+    const rows=[
+      {k:'📍 Current Location', v:prefs.currentLocation||'Not set'},
+      {k:'✈️ Preferred Destination', v:prefs.preferredDest||'Not set'},
+      {k:'🎂 Age', v:prefs.age},
+      {k:'📅 Months', v:prefs.months.join(', ')||'Any'},
+      {k:'🌈 Gender', v:prefs.gender||'Not set'},
+      {k:'💸 Budget', v:prefs.budget||'Not set'},
+      {k:'🪪 Username', v:prefs.username||'Not set'},
+    ];
+    document.getElementById('summaryCard').innerHTML=rows.map(r=>`<div class="summary-row"><span class="summary-key">${r.k}</span><span class="summary-val" style="font-size:.78rem;max-width:55%;text-align:right;">${r.v}</span></div>`).join('');
+  }
+
+  function finish(){
+    const existing=JSON.parse(sessionStorage.getItem('mtm_user')||'{}');
+    sessionStorage.setItem('mtm_user',JSON.stringify({...existing,...prefs}));
+    window.location.href='home.html';
+  }
+
+  renderDots();
+</script>
+</body>
+</html>
