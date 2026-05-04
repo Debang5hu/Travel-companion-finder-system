@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MyTripMate — Create Group</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<div style="padding-bottom:100px;">
+
+  <header class="search-header">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button onclick="window.history.back()" style="background:none;color:var(--text-muted);font-size:18px;border:none;cursor:pointer;padding:4px;"><i class="fa-solid fa-arrow-left"></i></button>
+      <h1 style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;">Post a Trip</h1>
+    </div>
+  </header>
+
+  <div class="create-form">
+
+    <div class="form-group">
+      <label><i class="fa-solid fa-map-location-dot"></i> Destination</label>
+      <input type="text" id="f-dest" placeholder="e.g. Paris, France"/>
+    </div>
+
+    <div class="form-group">
+      <label><i class="fa-solid fa-align-left"></i> Trip Description / Bio</label>
+      <textarea id="f-bio" placeholder="Tell people what this trip is about..."></textarea>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group">
+        <label><i class="fa-regular fa-calendar"></i> Start Date</label>
+        <input type="date" id="f-start"/>
+      </div>
+      <div class="form-group">
+        <label><i class="fa-regular fa-calendar-check"></i> End Date</label>
+        <input type="date" id="f-end"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label><i class="fa-solid fa-users"></i> Max Group Size</label>
+      <select id="f-size">
+        <option value="2">2 people</option>
+        <option value="3">3 people</option>
+        <option value="4" selected>4 people</option>
+        <option value="5">5 people</option>
+        <option value="6">6 people</option>
+        <option value="8">8 people</option>
+        <option value="10">10+ people</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label><i class="fa-solid fa-tags"></i> Travel Style</label>
+      <div class="chip-group" id="style-chips" style="margin-top:4px;">
+        <div class="chip" onclick="this.classList.toggle('selected')">🎭 Cultural</div>
+        <div class="chip" onclick="this.classList.toggle('selected')">⚡ Adventurous</div>
+        <div class="chip" onclick="this.classList.toggle('selected')">🥾 Trekking</div>
+        <div class="chip" onclick="this.classList.toggle('selected')">🏖 Beach</div>
+        <div class="chip" onclick="this.classList.toggle('selected')">🍜 Food</div>
+        <div class="chip" onclick="this.classList.toggle('selected')">✨ Luxury</div>
+        <div class="chip" onclick="this.classList.toggle('selected')">💰 Budget</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label><i class="fa-solid fa-indian-rupee-sign"></i> Estimated Budget (per person)</label>
+      <input type="text" id="f-budget" placeholder="e.g. ₹80,000"/>
+    </div>
+
+    <div class="form-group">
+      <label><i class="fa-solid fa-circle-info"></i> Additional Notes</label>
+      <textarea id="f-notes" placeholder="Any special requirements, preferences, or things to know..."></textarea>
+    </div>
+
+  </div>
+</div>
+
+<div class="create-submit">
+  <button onclick="submitTrip()">Post Trip ✈️</button>
+</div>
+
+<script>
+  const saved = localStorage.getItem('mtm-theme')||'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+
+  function submitTrip() {
+    const dest = document.getElementById('f-dest').value.trim();
+    const bio  = document.getElementById('f-bio').value.trim();
+    if(!dest || !bio){ alert('Please fill in at least the destination and description.'); return; }
+    // In real app: POST to backend API
+    alert('🎉 Your trip has been posted! Companions will be able to find and join your group.');
+    window.location.href = 'home.html';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MyTripMate — Trip Detail</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<div id="page-detail" style="padding-bottom:100px;">
+
+  <!-- Detail Header -->
+  <header class="detail-header">
+    <div class="detail-header-left">
+      <button onclick="window.history.back()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;margin-right:4px;"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="detail-avatar" id="detailAvatar">SH</div>
+      <div><p class="detail-handle" id="detailHandle">@sleepy_head17</p></div>
+    </div>
+    <div class="detail-spots">
+      <i class="fa-solid fa-user-group"></i>
+      <span id="detailSpots">3</span>
+    </div>
+  </header>
+
+  <!-- Meta bar -->
+  <div class="detail-meta-bar">
+    <div class="detail-meta-dates">
+      <i class="fa-regular fa-calendar"></i>
+      <span id="detailDates">14.05.2027 – 10.06.2027</span>
+    </div>
+    <div class="detail-meta-slots">
+      <span id="detailSlotsFilled">3</span>/<span id="detailSlotsMax">5</span>
+      <i class="fa-solid fa-user-group"></i>
+    </div>
+  </div>
+
+  <!-- Hero image -->
+  <div class="detail-hero-img">
+    <img src="images/paris.jpg" alt="Destination" id="detailHeroImg"/>
+    <div class="detail-hero-overlay">
+      <h1 class="detail-city" id="detailCity">PARIS</h1>
+      <p class="detail-subhandle" id="detailSubHandle">@sleepy_head17</p>
+      <p class="detail-tagline" id="detailTagline">Looking for jobless ppl :)</p>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="detail-body">
+    <div class="detail-section">
+      <h3 class="detail-section-title">Itinerary</h3>
+      <div class="itinerary" id="detailItinerary"></div>
+    </div>
+    <div class="detail-section">
+      <h3 class="detail-section-title">Cost Breakdown</h3>
+      <div class="cost-list" id="detailCost"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Ask to Join -->
+<div class="detail-cta">
+  <button class="btn-ask-join" id="joinBtn" onclick="askToJoin()">ASK TO JOIN</button>
+</div>
+
+<script src="js/data.js"></script>
+<script>
+  const saved = localStorage.getItem('mtm-theme')||'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+
+  const tripId = parseInt(sessionStorage.getItem('mtm_trip')||'1');
+  const trip = trips.find(t=>t.id===tripId) || trips[0];
+
+  // Populate
+  function setTxt(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
+  setTxt('detailAvatar', trip.initials);
+  setTxt('detailHandle', trip.handle);
+  setTxt('detailSpots', trip.spotsFilled);
+  setTxt('detailDates', trip.dates);
+  setTxt('detailSlotsFilled', trip.spotsFilled);
+  setTxt('detailSlotsMax', trip.spotsTotal);
+  setTxt('detailCity', trip.dest);
+  setTxt('detailSubHandle', trip.handle);
+  setTxt('detailTagline', trip.bio);
+  document.getElementById('detailHeroImg').src = trip.image;
+  document.title = `MyTripMate — ${trip.dest}`;
+
+  // Itinerary
+  document.getElementById('detailItinerary').innerHTML = trip.itinerary.map(d=>`
+    <div class="itin-day">
+      <p class="itin-day-label">${d.day}</p>
+      <ul>${d.activities.map(a=>`<li>${a}</li>`).join('')}</ul>
+    </div>`).join('');
+
+  // Cost
+  document.getElementById('detailCost').innerHTML = trip.costBreakdown.map(r=>`
+    <div class="cost-row ${r.isTotal?'cost-total':''}">
+      <span>${r.label}</span><span>${r.value}</span>
+    </div>`).join('');
+
+  // Join state
+  const isFull = trip.spotsFilled >= trip.spotsTotal;
+  const joined = JSON.parse(sessionStorage.getItem('mtm_joined')||'[]');
+  const alreadyJoined = joined.includes(trip.id);
+  const btn = document.getElementById('joinBtn');
+  if(isFull){ btn.textContent='Group Full'; btn.disabled=true; btn.style.opacity='.5'; }
+  else if(alreadyJoined){ btn.textContent='✓ Request Sent'; btn.disabled=true; btn.style.background='var(--purple-dark)'; }
+
+  function askToJoin() {
+    const joined = JSON.parse(sessionStorage.getItem('mtm_joined')||'[]');
+    joined.push(trip.id);
+    sessionStorage.setItem('mtm_joined', JSON.stringify(joined));
+    btn.textContent = '✓ Request Sent!';
+    btn.disabled = true;
+    btn.style.background = 'var(--purple-dark)';
+  }
+</script>
+</body>
+</html>

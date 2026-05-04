@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MyTripMate — Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    body{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+    .chat-header{background:var(--purple);padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+    .chat-header-info h2{font-size:.95rem;font-weight:700;color:#fff;}
+    .chat-header-info p{font-size:.75rem;color:rgba(255,255,255,.65);}
+    .chat-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--bg);}
+    .msg-bubble{max-width:75%;padding:10px 14px;border-radius:16px;font-size:.88rem;line-height:1.5;}
+    .msg-bubble.theirs{background:var(--bg-card);border:1px solid var(--border);border-bottom-left-radius:4px;align-self:flex-start;}
+    .msg-bubble.mine{background:var(--purple);color:#fff;border-bottom-right-radius:4px;align-self:flex-end;}
+    .msg-bubble .sender{font-size:.7rem;color:var(--purple-light);font-weight:600;margin-bottom:3px;}
+    .msg-bubble.mine .sender{display:none;}
+    .msg-time{font-size:.65rem;color:var(--text-faint);margin-top:4px;}
+    .chat-input-bar{padding:12px 16px 24px;background:var(--nav-bg);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-shrink:0;}
+    .chat-input-bar input{flex:1;background:var(--input-bg);border:1px solid var(--border-2);border-radius:24px;padding:11px 16px;font-size:14px;color:var(--text);font-family:'Outfit',sans-serif;outline:none;}
+    .chat-send{width:40px;height:40px;border-radius:50%;background:var(--purple);border:none;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .date-sep{text-align:center;font-size:.72rem;color:var(--text-faint);padding:4px 0;}
+  </style>
+</head>
+<body>
+
+<div class="chat-header">
+  <button onclick="window.history.back()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-arrow-left"></i></button>
+  <div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;" id="chatInitials">PA</div>
+  <div class="chat-header-info">
+    <h2 id="chatTitle">Paris Group</h2>
+    <p id="chatSub">3/5 members · Active now</p>
+  </div>
+  <button onclick="openDetail()" style="margin-left:auto;background:rgba(255,255,255,.15);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-info"></i></button>
+</div>
+
+<div class="chat-body" id="chatBody"></div>
+
+<div class="chat-input-bar">
+  <input type="text" id="chatInput" placeholder="Message..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+  <button class="chat-send" onclick="sendMsg()"><i class="fa-solid fa-paper-plane"></i></button>
+</div>
+
+<script src="js/data.js"></script>
+<script>
+  const saved = localStorage.getItem('mtm-theme')||'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+
+  const tripId = parseInt(sessionStorage.getItem('mtm_trip')||'1');
+  const trip = trips.find(t=>t.id===tripId)||trips[0];
+  const user = JSON.parse(sessionStorage.getItem('mtm_user')||'{}');
+
+  document.getElementById('chatTitle').textContent = trip.dest + ' Group';
+  document.getElementById('chatSub').textContent = `${trip.spotsFilled}/${trip.spotsTotal} members`;
+  document.getElementById('chatInitials').textContent = trip.dest.slice(0,2);
+
+  // Mock messages
+  const mockMsgs = [
+    { sender: trip.handle, text: `Welcome to the ${trip.dest} group! 🎉`, time:'10:00 AM', mine:false },
+    { sender: trip.handle, text: 'We depart on ' + trip.dates.split('–')[0].trim() + '. Make sure passports are ready!', time:'10:02 AM', mine:false },
+    { sender:'@fellow_traveller', text: 'Super excited for this trip 😍', time:'10:15 AM', mine:false },
+    { sender:'You', text: 'Just joined! Can\'t wait to meet everyone 🙌', time:'10:18 AM', mine:true },
+    { sender: trip.handle, text: 'Great to have you! Check the itinerary in the trip details.', time:'10:20 AM', mine:false },
+  ];
+
+  const body = document.getElementById('chatBody');
+
+  function renderMsgs(msgs) {
+    body.innerHTML = '<div class="date-sep">Today</div>' + msgs.map(m=>`
+      <div class="msg-bubble ${m.mine?'mine':'theirs'}">
+        ${!m.mine?`<div class="sender">${m.sender}</div>`:''}
+        ${m.text}
+        <div class="msg-time">${m.time}</div>
+      </div>`).join('');
+    body.scrollTop = body.scrollHeight;
+  }
+
+  renderMsgs(mockMsgs);
+
+  function sendMsg() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if(!text) return;
+    const now = new Date();
+    const time = now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    mockMsgs.push({ sender:'You', text, time, mine:true });
+    renderMsgs(mockMsgs);
+    input.value = '';
+  }
+
+  function openDetail(){sessionStorage.setItem('mtm_trip', tripId); window.location.href='detail.html';}
+</script>
+</body>
+</html>

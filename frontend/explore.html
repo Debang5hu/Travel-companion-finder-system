@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MyTripMate — Explore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<div id="page-explore" style="padding-bottom:80px;">
+
+  <!-- Search Header -->
+  <header class="search-header">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="window.location.href='home.html'" style="background:none;color:var(--text-muted);font-size:18px;padding:4px 8px;"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="search-bar-wrap" style="flex:1;">
+        <input type="text" id="searchInput" placeholder="Search destinations, groups..." onkeydown="if(event.key==='Enter')filterTrips()" oninput="filterTrips()"/>
+        <button onclick="filterTrips()"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+    </div>
+
+    <!-- Filter chips row -->
+    <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-top:12px;padding-bottom:2px;">
+      <button class="filter-chip active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-chip" onclick="setFilter('beach',this)">🏖 Beach</button>
+      <button class="filter-chip" onclick="setFilter('mountains',this)">🏔 Mountains</button>
+      <button class="filter-chip" onclick="setFilter('cultural',this)">🎭 Cultural</button>
+      <button class="filter-chip" onclick="setFilter('trekking',this)">🥾 Trekking</button>
+      <button class="filter-chip" onclick="setFilter('adventurous',this)">⚡ Adventure</button>
+      <button class="filter-chip" onclick="setFilter('luxury',this)">✨ Luxury</button>
+    </div>
+  </header>
+
+  <div class="trips-list" id="tripsList"></div>
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <button class="bottom-nav-item" onclick="window.location.href='home.html'"><i class="fa-solid fa-house"></i><span>Home</span></button>
+  <button class="bottom-nav-item" onclick="window.location.href='create-group.html'"><i class="fa-solid fa-plus"></i><span>Post</span></button>
+  <button class="bottom-nav-item active"><i class="fa-solid fa-globe"></i><span>Explore</span></button>
+  <button class="bottom-nav-item" onclick="window.location.href='messages.html'"><i class="fa-solid fa-message"></i><span>Chat</span></button>
+  <button class="bottom-nav-item" onclick="window.location.href='profile.html'"><i class="fa-solid fa-user"></i><span>Profile</span></button>
+</nav>
+
+<style>
+  .filter-chip{padding:7px 16px;border-radius:50px;border:1.5px solid var(--border-2);background:var(--bg-card);color:var(--text-muted);font-size:.8rem;font-weight:500;cursor:pointer;white-space:nowrap;font-family:'Outfit',sans-serif;transition:all .2s;flex-shrink:0;}
+  .filter-chip.active{background:var(--purple);border-color:var(--purple);color:#fff;}
+</style>
+
+<script src="js/data.js"></script>
+<script>
+  const saved = localStorage.getItem('mtm-theme')||'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+
+  let activeFilter = 'all';
+
+  // Pre-fill search from home
+  const preSearch = sessionStorage.getItem('mtm_search');
+  if(preSearch){ document.getElementById('searchInput').value = preSearch; sessionStorage.removeItem('mtm_search'); }
+
+  function setFilter(f, el) {
+    activeFilter = f;
+    document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+    el.classList.add('active');
+    filterTrips();
+  }
+
+  function filterTrips() {
+    const q = (document.getElementById('searchInput').value||'').trim().toLowerCase();
+    let filtered = trips;
+    if(activeFilter !== 'all') filtered = filtered.filter(t=>[...(t.terrain||[]),...(t.style||[])].includes(activeFilter));
+    if(q) filtered = filtered.filter(t=>t.dest.toLowerCase().includes(q)||t.city.toLowerCase().includes(q)||t.country.toLowerCase().includes(q)||t.handle.toLowerCase().includes(q)||t.bio.toLowerCase().includes(q));
+    renderList(filtered);
+  }
+
+  function renderList(list) {
+    const el = document.getElementById('tripsList');
+    if(!list.length){
+      el.innerHTML=`<div style="text-align:center;padding:60px 20px;color:var(--text-muted);"><i class="fa-solid fa-magnifying-glass" style="font-size:32px;margin-bottom:14px;color:var(--purple-light);display:block;"></i><p style="font-size:15px;font-weight:600;">No trips found</p><p style="font-size:13px;margin-top:6px;">Try a different search or filter</p></div>`;
+      return;
+    }
+    el.innerHTML = list.map(t => renderTripCard(t)).join('');
+  }
+
+  filterTrips();
+</script>
+</body>
+</html>
