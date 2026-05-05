@@ -54,6 +54,7 @@ paths:
   /delete-account:
     delete:
       tags: [Account]
+      summary: Delete user profile
       security:
         - BearerAuth: []
       responses:
@@ -63,6 +64,7 @@ paths:
   /profile:
     get:
       tags: [Account]
+      summary: Get your profile
       security:
         - BearerAuth: []
       responses:
@@ -101,9 +103,10 @@ paths:
         "200":
           description: Logout success
 
-  /recommend:
+  /recommend/user:
     post:
       tags: [Recommendations]
+      summary: Recommend similar users
       security:
         - BearerAuth: []
       requestBody:
@@ -120,9 +123,49 @@ paths:
               schema:
                 $ref: '#/components/schemas/RecommendationResponse'
 
+  /recommend/group:
+    get:
+      tags: [Recommendations]
+      summary: Recommend travel groups based on similar users
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Recommended groups
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: string
+                  groups:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        group_id: { type: string }
+                        group_name: { type: string }
+                        destination: { type: string }
+                        travel_month: { type: integer }
+                        description: { type: string }
+                        max_members: { type: integer }
+                        admin: { type: string }
+                        current_members: { type: integer }
+                        score:
+                          type: number
+                          format: float
+        "401":
+          description: Unauthorized (missing or invalid token)
+        "404":
+          description: User not found
+        "500":
+          description: Internal server error 
+
   /groups:
     get:
       tags: [Groups]
+      summary: List travel group
       security:
         - BearerAuth: []
       responses:
@@ -136,6 +179,7 @@ paths:
   /create-group:
     post:
       tags: [Groups]
+      summary: Create travel group
       security:
         - BearerAuth: []
       requestBody:
@@ -151,6 +195,7 @@ paths:
   /join-group:
     post:
       tags: [Groups]
+      summary: Join travel group
       security:
         - BearerAuth: []
       requestBody:
@@ -166,6 +211,7 @@ paths:
   /update-group:
     put:
       tags: [Groups]
+      summary: Update your travel group
       security:
         - BearerAuth: []
       requestBody:
@@ -181,6 +227,7 @@ paths:
   /delete-group:
     delete:
       tags: [Groups]
+      summary: Delete your travel group
       security:
         - BearerAuth: []
       requestBody:
@@ -196,6 +243,7 @@ paths:
   /group/allow:
     post:
       tags: [Groups]
+      summary: Allow user to join your travel group
       security:
         - BearerAuth: []
       requestBody:
@@ -211,6 +259,7 @@ paths:
   /group/reject:
     post:
       tags: [Groups]
+      summary: Reject user to join your travel group
       security:
         - BearerAuth: []
       requestBody:
@@ -226,6 +275,7 @@ paths:
   /group/leave:
     post:
       tags: [Groups]
+      summary: Leave joined group
       security:
         - BearerAuth: []
       requestBody:
@@ -241,6 +291,7 @@ paths:
   /group/requests:
     get:
       tags: [Groups]
+      summary: List join request of your group
       security:
         - BearerAuth: []
       parameters:
@@ -256,6 +307,7 @@ paths:
   /chat/send:
     post:
       tags: [Chat]
+      summary: Chat with user
       security:
         - BearerAuth: []
       requestBody:
@@ -271,6 +323,7 @@ paths:
   /chat/messages:
     get:
       tags: [Chat]
+      summary: List private chats
       security:
         - BearerAuth: []
       parameters:
@@ -286,6 +339,7 @@ paths:
   /chat/unread:
     get:
       tags: [Chat]
+      summary: List unread private chat
       security:
         - BearerAuth: []
       responses:
@@ -299,6 +353,7 @@ paths:
   /chat/read:
     post:
       tags: [Chat]
+      summary: Read unread chats
       security:
         - BearerAuth: []
       requestBody:
@@ -314,6 +369,7 @@ paths:
   /group/chat/send:
     post:
       tags: [Chat]
+      summary: Send chat to a group
       security:
         - BearerAuth: []
       requestBody:
@@ -329,6 +385,7 @@ paths:
   /group/chat:
     get:
       tags: [Chat]
+      summary: List group chats
       security:
         - BearerAuth: []
       parameters:

@@ -149,7 +149,8 @@ OPENTRIPMAP_KEY=your_api_key
 - `GET /api/group/chat`
 
 ### Recommendation
-- `POST /api/recommend`
+- `POST /api/recommend/user`
+- `GET /api/recommend/group`
 
 ---
 
@@ -203,6 +204,7 @@ python3 app.py
 ```  
 
 Docs: [swagger](docs/swagger.yml)  
+Test: [postman](docs/postman_collection.json)  
 
 
 ## License
