@@ -176,6 +176,34 @@ docker-compose down -v
     - Backend: `http://localhost:5000`
 
 
+### Develope backend
+
+<b>env</b>
+
+```sh
+# env
+python3 -m venv venv
+
+source venv/bin/activate
+
+pip3 install -r requirements.txt
+```  
+
+<b>database</b>
+
+```sh 
+# set your own creds
+mysql -u $username -p < main.sql
+```
+
+<b>run</b>
+
+```sh
+python3 app.py
+```  
+
+Docs: [swagger](docs/swagger.yml)  
+
 
 ## License
 
