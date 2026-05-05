@@ -105,6 +105,7 @@ class TravelRecommender:
 
         # keep only numeric columns
         features = features.select_dtypes(include=[np.number])
+        features = features.fillna(0)
 
         features_scaled = self.scaler.fit_transform(features)
         self.content_similarity_matrix = cosine_similarity(features_scaled)
@@ -117,6 +118,7 @@ class TravelRecommender:
 
         # keep only numeric columns
         features = features.select_dtypes(include=[np.number])
+        features = features.fillna(0)
 
         scaled = self.scaler.transform(features)
         k = max(2, int(np.sqrt(len(self.users_df) / 2)))
