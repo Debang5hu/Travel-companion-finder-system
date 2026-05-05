@@ -50,6 +50,7 @@ The backend exposes REST APIs for authentication, user management, group managem
 ### 5. Recommendation System
 - Hybrid recommendation engine
 - Suggests users with similar travel interests
+- Suggests groups with similar travel interests
 
 ---
 
@@ -157,6 +158,21 @@ OPENTRIPMAP_KEY=your_api_key
 ## How to Run
 
 1. Create an `.env` file in the `/backend` and add the required [environment variables](#environment-variables)  
+
+2. Set your credentials in `docker-compose.yml` 
+    
+```sh
+# set creds
+environment:
+MYSQL_ROOT_PASSWORD: "1234!"
+MYSQL_DATABASE: travel
+MYSQL_USER: user
+MYSQL_PASSWORD: "1234!"
+    
+# pass
+healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p1234! || exit 1"]
+```  
 
 2. Start the Containers:  
 
