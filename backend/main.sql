@@ -7,7 +7,7 @@ CREATE TABLE users (
     user_id CHAR(36) PRIMARY KEY,   -- UUID
     username VARCHAR(50) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    pfp VARCHAR(255) DEFAULT NULL,   -- profile
+    pfp VARCHAR(255) DEFAULT NULL,
     age INT,
     budget INT,
     beach TINYINT(1) DEFAULT 0,
@@ -26,10 +26,12 @@ CREATE INDEX idx_users_lat_lon ON users(latitude, longitude);
 
 CREATE TABLE poi (
     poi_id INT PRIMARY KEY AUTO_INCREMENT,
-    poi_name VARCHAR(100) NOT NULL,
+    poi_name VARCHAR(150) NOT NULL,
     latitude DECIMAL(9,6) NOT NULL,
     longitude DECIMAL(9,6) NOT NULL,
-    category VARCHAR(50) NOT NULL
+    category VARCHAR(50) NOT NULL,
+    external_id VARCHAR(120),
+    UNIQUE KEY unique_poi (poi_name, latitude, longitude)
 );
 
 
@@ -239,16 +241,12 @@ VALUES
 ('d635ad4017d011f1b077e8fb1c361bab','user_100','$2b$12$C6UzMDM.H6dfI/f/IKcEe.7qQ1ZJ8R9Q0ZQzQ0ZQzQ0ZQzQ0ZQzQ0',21,10657,1,1,0,1,5,26.9262096, 75.8238346);
 
 
-INSERT INTO poi (poi_id, poi_name, latitude, longitude, category) VALUES
-(1,'Baga Beach', 15.555300, 73.751700,'beach'),
-(2,'Fort Aguada', 15.498900, 73.773700,'culture'),
-(3,'Dudhsagar Falls', 15.314400, 74.314600,'adventure'),
-(4,'Solang Valley', 32.316800, 77.157000,'adventure'),
-(5,'Hadimba Temple', 32.243100, 77.188300,'religious'),
-(6,'Rohtang Pass', 32.371300, 77.246300,'trekking'),
-(7,'Hawa Mahal', 26.923900, 75.826700,'culture'),
-(8,'Amber Fort', 26.985500, 75.851300,'culture'),
-(9,'City Palace Jaipur', 26.925800, 75.823700,'adventure');
+INSERT INTO poi (poi_name, latitude, longitude, category, external_id) VALUES
+('Ghare Baire', 22.575663, 88.352303, 'museums,cultural,interesting_places,art_galleries', 'Q105653829'),
+('Nakhoda Mosque', 22.577621, 88.356110, 'religion,mosques,interesting_places', 'W325837615'),
+('Smaranika Tram Museum', 22.565098, 88.347618, 'museums,cultural,interesting_places,other_museums', 'Q56682452'),
+('Birla Planetarium', 22.545507, 88.347321, 'planetariums,cultural,museums,interesting_places', 'W112025100'),
+('Bauddha Dharmankur Sabha', 22.569456, 88.356850, 'religion,other_temples,interesting_places', 'N7029084685');
 
 
 INSERT INTO ratings (user_id, poi_id, rating_food, rating_safety, rating_fun) VALUES

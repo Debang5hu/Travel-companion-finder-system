@@ -30,7 +30,9 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.cluster import KMeans
 from geopy.distance import geodesic
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class TravelRecommender:
 
@@ -99,10 +101,11 @@ class TravelRecommender:
     # # content based model
     def _build_content_model(self):
         # features = self.users_df.drop(columns=["id", "latitude", "longitude"], errors="ignore")
-        features = self.users_df.drop(columns=["user_id", "destination_id", "latitude", "longitude", "cluster"], errors="ignore")
+        features = self.users_df.drop(columns=["user_id", "destination", "latitude", "longitude"], errors="ignore")
 
         # keep only numeric columns
         features = features.select_dtypes(include=[np.number])
+        features = features.fillna(0)
 
         features_scaled = self.scaler.fit_transform(features)
         self.content_similarity_matrix = cosine_similarity(features_scaled)
@@ -111,10 +114,11 @@ class TravelRecommender:
     # K Means Clustering
     def _build_clustering(self):
         # features = self.users_df.drop(columns=["id", "latitude", "longitude"], errors="ignore")
-        features = self.users_df.drop(columns=["user_id", "destination_id", "latitude", "longitude", "cluster"], errors="ignore")
+        features = self.users_df.drop(columns=["user_id", "destination", "latitude", "longitude"], errors="ignore")
 
         # keep only numeric columns
         features = features.select_dtypes(include=[np.number])
+        features = features.fillna(0)
 
         scaled = self.scaler.transform(features)
         k = max(2, int(np.sqrt(len(self.users_df) / 2)))
