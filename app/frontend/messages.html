@@ -11,7 +11,6 @@
 </head>
 <body>
 <div style="padding-bottom:80px;">
-
   <header class="search-header">
     <div style="display:flex;align-items:center;justify-content:space-between;">
       <h1 style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;">Messages</h1>
@@ -23,10 +22,17 @@
     </div>
   </header>
 
-  <div class="messages-list" id="messagesList"></div>
+  <!-- Tabs: Private | Groups -->
+  <div style="display:flex;border-bottom:1px solid var(--border);background:var(--bg);">
+    <button id="tabPrivate" onclick="switchTab('private')" style="flex:1;padding:14px;background:none;border:none;font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:600;color:var(--purple-light);border-bottom:2px solid var(--purple);cursor:pointer;">Private</button>
+    <button id="tabGroups" onclick="switchTab('groups')" style="flex:1;padding:14px;background:none;border:none;font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:600;color:var(--text-muted);border-bottom:2px solid transparent;cursor:pointer;">Groups</button>
+  </div>
+
+  <div class="messages-list" id="messagesList">
+    <div style="text-align:center;padding:40px;color:var(--text-faint);">Loading messages...</div>
+  </div>
 </div>
 
-<!-- Bottom Nav -->
 <nav class="bottom-nav">
   <button class="bottom-nav-item" onclick="window.location.href='home.html'"><i class="fa-solid fa-house"></i><span>Home</span></button>
   <button class="bottom-nav-item" onclick="window.location.href='create-group.html'"><i class="fa-solid fa-plus"></i><span>Post</span></button>
@@ -35,63 +41,110 @@
   <button class="bottom-nav-item" onclick="window.location.href='profile.html'"><i class="fa-solid fa-user"></i><span>Profile</span></button>
 </nav>
 
-<script src="js/data.js"></script>
+<script src="js/api.js"></script>
 <script>
   const saved = localStorage.getItem('mtm-theme')||'dark';
   document.documentElement.setAttribute('data-theme', saved);
+  if(!requireAuth()) window.location.href='index.html';
 
-  // Get joined trips
-  const joinedIds = JSON.parse(sessionStorage.getItem('mtm_joined')||'[]');
-  const joinedTrips = trips.filter(t => joinedIds.includes(t.id));
+  let currentTab = 'private';
+  let unreadData = [];
+  let groupsData = [];
 
-  // Mock extra groups to make it feel populated
-  const mockGroups = [
-    { id:99, dest:'BALI', handle:'@zen_wanderer', initials:'ZW', bio:'Yoga, rice fields & sunsets 🌅', preview:'Next meetup at Ubud Palace at 9am 🙏', time:'2m ago', unread:3, online:true },
-    { id:98, dest:'TOKYO', handle:'@neon_nomad', initials:'NN', bio:'Anime & ramen 🍜', preview:'Anyone up for Shibuya crossing tonight?', time:'1h ago', unread:1, online:true },
-  ];
+  function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('tabPrivate').style.color = tab==='private'?'var(--purple-light)':'var(--text-muted)';
+    document.getElementById('tabPrivate').style.borderBottom = tab==='private'?'2px solid var(--purple)':'2px solid transparent';
+    document.getElementById('tabGroups').style.color = tab==='groups'?'var(--purple-light)':'var(--text-muted)';
+    document.getElementById('tabGroups').style.borderBottom = tab==='groups'?'2px solid var(--purple)':'2px solid transparent';
+    render();
+  }
 
-  const allGroups = [
-    ...joinedTrips.map(t=>({
-      id:t.id, dest:t.dest, handle:t.handle, initials:t.initials, bio:t.bio,
-      preview:`Welcome to the ${t.dest} group! 🎉`, time:'Just now', unread:2, online:false
-    })),
-    ...mockGroups
-  ];
+  function render() {
+    if(currentTab==='private') renderPrivate(unreadData);
+    else renderGroups(groupsData);
+  }
 
-  function renderMessages(list) {
+  function filterMessages(q) {
+    if(currentTab==='private'){
+      const filtered = unreadData.filter(c=>(c.username||'').toLowerCase().includes(q.toLowerCase()));
+      renderPrivate(filtered);
+    } else {
+      const filtered = groupsData.filter(g=>(g.group_name||g.destination||'').toLowerCase().includes(q.toLowerCase()));
+      renderGroups(filtered);
+    }
+  }
+
+  function renderPrivate(convos) {
     const el = document.getElementById('messagesList');
-    if(!list.length){
-      el.innerHTML=`<div class="empty-state"><i class="fa-solid fa-comments"></i><h3>No messages yet</h3><p>Join a trip group to start chatting with fellow travellers!</p><button onclick="window.location.href='explore.html'" style="margin-top:16px;padding:12px 24px;background:var(--purple);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;">Explore Trips</button></div>`;
+    if(!convos.length){
+      el.innerHTML=`<div class="empty-state"><i class="fa-solid fa-comments"></i><h3>No messages yet</h3><p>Join a group or find a companion to start chatting!</p></div>`;
       return;
     }
-    el.innerHTML = list.map(g=>`
-      <div class="msg-item" onclick="openChat(${g.id})">
+    el.innerHTML = convos.map(c=>`
+      <div class="msg-item" onclick="openPrivateChat('${c.user_id}','${c.username}')">
         <div class="msg-avatar-wrap">
-          <div class="msg-avatar">${g.initials}</div>
-          ${g.online?'<div class="msg-online"></div>':''}
+          <div class="msg-avatar">${(c.username||'?').slice(0,2).toUpperCase()}</div>
+          <div class="msg-online"></div>
         </div>
         <div class="msg-content">
-          <div class="msg-name">${g.dest} Group</div>
-          <div class="msg-preview">${g.preview}</div>
+          <div class="msg-name">@${c.username}</div>
+          <div class="msg-preview">Tap to open conversation</div>
         </div>
         <div class="msg-meta">
-          <span class="msg-time">${g.time}</span>
-          ${g.unread?`<div class="msg-badge">${g.unread}</div>`:''}
+          ${c.unread?`<div class="msg-badge">${c.unread}</div>`:''}
         </div>
       </div>`).join('');
   }
 
-  function filterMessages(q) {
-    const filtered = allGroups.filter(g=>g.dest.toLowerCase().includes(q.toLowerCase())||g.preview.toLowerCase().includes(q.toLowerCase()));
-    renderMessages(filtered);
+  function renderGroups(groups) {
+    const el = document.getElementById('messagesList');
+    if(!groups.length){
+      el.innerHTML=`<div class="empty-state"><i class="fa-solid fa-users"></i><h3>No group chats yet</h3><p>Join a trip group to start chatting!</p><button onclick="window.location.href='explore.html'" style="margin-top:16px;padding:12px 24px;background:var(--purple);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;">Explore Groups</button></div>`;
+      return;
+    }
+    el.innerHTML = groups.map(g=>`
+      <div class="msg-item" onclick="openGroupChat('${g.group_id}')">
+        <div class="msg-avatar-wrap">
+          <div class="msg-avatar">${(g.destination||g.group_name||'GR').slice(0,2).toUpperCase()}</div>
+        </div>
+        <div class="msg-content">
+          <div class="msg-name">${g.group_name||g.destination}</div>
+          <div class="msg-preview">${g.destination||'Tap to open'} · ${g.current_members||0} members</div>
+        </div>
+        <div class="msg-meta">
+          <span class="msg-time">Group</span>
+        </div>
+      </div>`).join('');
   }
 
-  function openChat(id) {
-    sessionStorage.setItem('mtm_trip', id);
-    window.location.href = 'chat.html';
+  function openPrivateChat(user_id, username) {
+    sessionStorage.setItem('mtm_chat_user', JSON.stringify({user_id, username}));
+    window.location.href='private-chat.html';
   }
 
-  renderMessages(allGroups);
+  function openGroupChat(group_id) {
+    sessionStorage.setItem('mtm_group', group_id);
+    window.location.href='chat.html';
+  }
+
+  async function loadMessages(){
+    try {
+      // Load unread/private conversations
+      const unread = await ChatAPI.getUnread();
+      unreadData = unread.conversations || [];
+
+      // Load joined groups
+      const groupData = await GroupAPI.getAll();
+      groupsData = (groupData.groups||[]).filter(g=>g.joined===1);
+
+      render();
+    } catch(err){
+      document.getElementById('messagesList').innerHTML=`<div style="text-align:center;padding:40px;color:var(--text-faint);">${err.message}</div>`;
+    }
+  }
+
+  loadMessages();
 </script>
 </body>
 </html>

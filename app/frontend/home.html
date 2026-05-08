@@ -11,20 +11,16 @@
 </head>
 <body>
 
-<!-- Side Menu & Overlay (injected by JS) -->
+<div id="page-home" style="padding-bottom:80px;display:block;">
 
-<div id="page-home" style="padding-bottom:80px; display:block;">
-
-  <!-- Header -->
   <header class="home-header">
     <button class="hamburger-btn" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
     <div class="home-search">
-      <input type="text" id="homeSearchInput" placeholder="Enter your destination..." onkeydown="if(event.key==='Enter') goSearch()"/>
+      <input type="text" id="homeSearchInput" placeholder="Search destination or group..." onkeydown="if(event.key==='Enter') goSearch()"/>
       <button onclick="goSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
     </div>
   </header>
 
-  <!-- Hero -->
   <section class="home-hero">
     <div class="home-hero-silhouette"><img src="images/homepage.jpg" alt=""/></div>
     <div class="home-hero-text">
@@ -34,13 +30,15 @@
     </div>
   </section>
 
-  <!-- Recommended for You -->
+  <!-- Recommended Companions -->
   <div class="home-section">
     <div class="home-section-header">
       <span class="home-section-title">✦ Recommended for You</span>
       <span class="home-section-link" onclick="window.location.href='explore.html'">See all</span>
     </div>
-    <div class="rec-scroll" id="recScroll"></div>
+    <div id="recScroll" class="rec-scroll">
+      <div style="color:var(--text-faint);font-size:.85rem;padding:20px;">Loading recommendations...</div>
+    </div>
   </div>
 
   <!-- Form a Group CTA -->
@@ -53,88 +51,138 @@
     <i class="fa-solid fa-chevron-right" style="margin-left:auto;color:var(--text-faint);"></i>
   </div>
 
-  <!-- Explore Destinations -->
+  <!-- All Groups -->
   <div class="home-section" style="margin-bottom:20px;">
     <div class="home-section-header">
-      <span class="home-section-title">Explore Destinations</span>
+      <span class="home-section-title">Trip Groups</span>
       <span class="home-section-link" onclick="window.location.href='explore.html'">See all</span>
     </div>
-    <section class="destinations-section" style="padding:0;">
-      <div class="dest-grid" id="destGrid"></div>
-      <div class="scroll-dots" id="destDots"></div>
-    </section>
+    <div id="groupsList" class="trips-list" style="padding:0;">
+      <div style="color:var(--text-faint);font-size:.85rem;padding:20px;">Loading groups...</div>
+    </div>
   </div>
 
 </div>
 
-<!-- Bottom Nav -->
 <nav class="bottom-nav">
-  <button class="bottom-nav-item active" onclick="window.location.href='home.html'"><i class="fa-solid fa-house"></i><span>Home</span></button>
+  <button class="bottom-nav-item active"><i class="fa-solid fa-house"></i><span>Home</span></button>
   <button class="bottom-nav-item" onclick="window.location.href='create-group.html'"><i class="fa-solid fa-plus"></i><span>Post</span></button>
   <button class="bottom-nav-item" onclick="window.location.href='explore.html'"><i class="fa-solid fa-globe"></i><span>Explore</span></button>
   <button class="bottom-nav-item" onclick="window.location.href='messages.html'"><i class="fa-solid fa-message"></i><span>Chat</span></button>
   <button class="bottom-nav-item" onclick="window.location.href='profile.html'"><i class="fa-solid fa-user"></i><span>Profile</span></button>
 </nav>
 
-<script src="js/data.js"></script>
+<script src="js/api.js"></script>
 <script src="js/sidemenu.js"></script>
 <script>
-  // Theme
   const saved = localStorage.getItem('mtm-theme')||'dark';
   document.documentElement.setAttribute('data-theme', saved);
+  if(!requireAuth()) window.location.href='index.html';
 
-  // Inject side menu
   injectSideMenu();
-
   function toggleMenu(){document.getElementById('sideMenu').classList.toggle('open');document.getElementById('menuOverlay').classList.toggle('active');}
   function closeMenu(){document.getElementById('sideMenu').classList.remove('open');document.getElementById('menuOverlay').classList.remove('active');}
-  function toggleTheme(){const h=document.documentElement,isL=h.getAttribute('data-theme')==='light';h.setAttribute('data-theme',isL?'dark':'light');localStorage.setItem('mtm-theme',isL?'dark':'light');const t=document.getElementById('themeToggle');if(t)t.checked=!isL;}
+  function toggleTheme(){const h=document.documentElement,isL=h.getAttribute('data-theme')==='light';h.setAttribute('data-theme',isL?'dark':'light');localStorage.setItem('mtm-theme',isL?'dark':'light');}
 
-  function goSearch() {
-    const q = document.getElementById('homeSearchInput').value.trim();
-    if(q) sessionStorage.setItem('mtm_search', q);
-    window.location.href = 'explore.html';
+  function goSearch(){
+    const q=document.getElementById('homeSearchInput').value.trim();
+    if(q) sessionStorage.setItem('mtm_search',q);
+    window.location.href='explore.html';
   }
 
-  // Render recommended trips
-  const recs = getRecommendedTrips(6);
-  document.getElementById('recScroll').innerHTML = recs.map((t,i) => `
-    <div class="rec-card" onclick="openDetail(${t.id})">
-      <img src="${t.image}" alt="${t.dest}" loading="lazy"/>
-      <div class="rc-overlay">
-        <div class="rc-num">${i+1}</div>
-        <div class="rc-title">${t.dest}</div>
-        <div class="rc-sub">${t.country} · ${t.spotsFilled}/${t.spotsTotal} spots</div>
-      </div>
-    </div>`).join('');
-
-  // Render destination cards
-  const destGrid = document.getElementById('destGrid');
-  const dotsEl   = document.getElementById('destDots');
-  destGrid.innerHTML = destinations.map(d => `
-    <div class="dest-card" onclick="goToDestination('${d.city}')">
-      <div class="dest-img-wrap">
-        <img src="${d.image}" alt="${d.name}" loading="lazy"/>
-        <div class="dest-overlay"><span class="dest-name">${d.name}</span></div>
-        <button class="dest-arrow" onclick="event.stopPropagation();goToDestination('${d.city}')"><i class="fa-solid fa-arrow-right"></i></button>
-      </div>
-      <p class="dest-desc">${d.desc}</p>
-    </div>`).join('');
-
-  dotsEl.innerHTML = destinations.map((_,i)=>`<div class="scroll-dot ${i===0?'active':''}" onclick="scrollToCard(${i})"></div>`).join('');
-
-  // Scroll dots
-  destGrid.addEventListener('scroll',()=>{
-    const w = destGrid.querySelector('.dest-card').offsetWidth + 14;
-    const idx = Math.round(destGrid.scrollLeft/w);
-    document.querySelectorAll('.scroll-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
-  });
-  function scrollToCard(i){const w=destGrid.querySelector('.dest-card').offsetWidth+14;destGrid.scrollTo({left:i*w,behavior:'smooth'});}
-
-  function goToDestination(city) {
-    sessionStorage.setItem('mtm_search', city);
-    window.location.href = 'explore.html';
+  // Render a companion card from recommendation
+  function renderCompanionCard(user) {
+    return `
+      <div class="rec-card" style="min-width:160px;">
+        <img src="${user.pfp||'https://i.pravatar.cc/150?img=1'}" alt="${user.username}" loading="lazy" style="width:160px;height:200px;object-fit:cover;display:block;"/>
+        <div class="rc-overlay">
+          <div class="rc-title" style="font-size:.95rem;">@${user.username}</div>
+          <div class="rc-sub">Match score: ${user.score ? (user.score*100).toFixed(0)+'%' : 'N/A'}</div>
+        </div>
+      </div>`;
   }
+
+  // Render a group card
+  function renderGroupCard(g) {
+    const isFull = g.current_members >= g.max_members;
+    const isPending = g.request_pending === 1;
+    const isJoined = g.joined === 1;
+    return `
+      <div class="trip-card" onclick="openGroup('${g.group_id}')">
+        <div class="trip-img-wrap">
+          <div style="width:100%;height:150px;background:linear-gradient(135deg,var(--purple-dark),var(--purple));display:flex;align-items:center;justify-content:center;">
+            <span style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:#fff;letter-spacing:-1px;">${g.destination||g.group_name}</span>
+          </div>
+        </div>
+        <div class="trip-card-body">
+          <div class="trip-user-row">
+            <div class="trip-avatar">${(g.admin||'?').slice(0,2).toUpperCase()}</div>
+            <div>
+              <p class="trip-handle">@${g.admin||'unknown'}</p>
+              <p class="trip-bio">${g.description||'No description'}</p>
+            </div>
+          </div>
+          <div class="trip-card-footer">
+            <div class="trip-spots-row">
+              <span class="spots-text">${g.current_members||0}/${g.max_members||'?'} members</span>
+            </div>
+            <button class="btn-join ${isFull?'full':''}" onclick="event.stopPropagation();joinGroup('${g.group_id}',this)">
+              ${isJoined ? '<i class="fa-solid fa-check"></i> Joined'
+                : isPending ? '<i class="fa-solid fa-clock"></i> Pending'
+                : isFull ? '<i class="fa-solid fa-lock"></i> Full'
+                : '<i class="fa-solid fa-plus"></i> Join'}
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  async function joinGroup(group_id, btn) {
+    try {
+      await GroupAPI.join(group_id);
+      btn.innerHTML = '<i class="fa-solid fa-clock"></i> Pending';
+      btn.classList.add('full');
+      showSuccess('Join request sent!');
+    } catch(err) {
+      showError(err.message||'Could not join group.');
+    }
+  }
+
+  function openGroup(group_id) {
+    sessionStorage.setItem('mtm_group', group_id);
+    window.location.href = 'detail.html';
+  }
+
+  // Load data
+  async function loadPage() {
+    // Load recommendations
+    try {
+      const data = await RecommendAPI.getUsers(5);
+      const recs = data.recommendations || data.users || [];
+      if(recs.length) {
+        document.getElementById('recScroll').innerHTML = recs.map(u => renderCompanionCard(u)).join('');
+      } else {
+        document.getElementById('recScroll').innerHTML = '<div style="color:var(--text-faint);font-size:.85rem;padding:20px;">No recommendations yet — complete your profile!</div>';
+      }
+    } catch(err) {
+      document.getElementById('recScroll').innerHTML = `<div style="color:var(--text-faint);font-size:.85rem;padding:20px;">${err.message}</div>`;
+    }
+
+    // Load groups
+    try {
+      const data = await GroupAPI.getAll();
+      const groups = data.groups || [];
+      if(groups.length) {
+        document.getElementById('groupsList').innerHTML = groups.slice(0,4).map(g => renderGroupCard(g)).join('');
+      } else {
+        document.getElementById('groupsList').innerHTML = '<div style="color:var(--text-faint);font-size:.85rem;padding:20px;">No groups yet. Be the first to create one!</div>';
+      }
+    } catch(err) {
+      document.getElementById('groupsList').innerHTML = `<div style="color:var(--text-faint);font-size:.85rem;padding:20px;">${err.message}</div>`;
+    }
+  }
+
+  loadPage();
 </script>
 </body>
 </html>

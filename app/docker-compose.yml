@@ -47,7 +47,7 @@ services:
       - app
 
 
-    frontend_app:
+  frontend_app:
     build:
       context: ./frontend
       dockerfile: Dockerfile

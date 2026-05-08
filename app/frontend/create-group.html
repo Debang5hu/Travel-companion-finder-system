@@ -11,7 +11,6 @@
 </head>
 <body>
 <div style="padding-bottom:100px;">
-
   <header class="search-header">
     <div style="display:flex;align-items:center;gap:12px;">
       <button onclick="window.history.back()" style="background:none;color:var(--text-muted);font-size:18px;border:none;cursor:pointer;padding:4px;"><i class="fa-solid fa-arrow-left"></i></button>
@@ -20,31 +19,33 @@
   </header>
 
   <div class="create-form">
-
+    <div class="form-group">
+      <label><i class="fa-solid fa-tag"></i> Group Name</label>
+      <input type="text" id="f-name" placeholder="e.g. Paris Adventure Squad"/>
+    </div>
     <div class="form-group">
       <label><i class="fa-solid fa-map-location-dot"></i> Destination</label>
       <input type="text" id="f-dest" placeholder="e.g. Paris, France"/>
     </div>
-
     <div class="form-group">
-      <label><i class="fa-solid fa-align-left"></i> Trip Description / Bio</label>
-      <textarea id="f-bio" placeholder="Tell people what this trip is about..."></textarea>
+      <label><i class="fa-solid fa-align-left"></i> Description</label>
+      <textarea id="f-desc" placeholder="Tell people what this trip is about..."></textarea>
     </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-      <div class="form-group">
-        <label><i class="fa-regular fa-calendar"></i> Start Date</label>
-        <input type="date" id="f-start"/>
-      </div>
-      <div class="form-group">
-        <label><i class="fa-regular fa-calendar-check"></i> End Date</label>
-        <input type="date" id="f-end"/>
-      </div>
-    </div>
-
     <div class="form-group">
-      <label><i class="fa-solid fa-users"></i> Max Group Size</label>
-      <select id="f-size">
+      <label><i class="fa-regular fa-calendar"></i> Travel Month</label>
+      <select id="f-month">
+        <option value="">Select month...</option>
+        <option value="1">January</option><option value="2">February</option>
+        <option value="3">March</option><option value="4">April</option>
+        <option value="5">May</option><option value="6">June</option>
+        <option value="7">July</option><option value="8">August</option>
+        <option value="9">September</option><option value="10">October</option>
+        <option value="11">November</option><option value="12">December</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label><i class="fa-solid fa-users"></i> Max Members</label>
+      <select id="f-max">
         <option value="2">2 people</option>
         <option value="3">3 people</option>
         <option value="4" selected>4 people</option>
@@ -54,48 +55,39 @@
         <option value="10">10+ people</option>
       </select>
     </div>
-
-    <div class="form-group">
-      <label><i class="fa-solid fa-tags"></i> Travel Style</label>
-      <div class="chip-group" id="style-chips" style="margin-top:4px;">
-        <div class="chip" onclick="this.classList.toggle('selected')">🎭 Cultural</div>
-        <div class="chip" onclick="this.classList.toggle('selected')">⚡ Adventurous</div>
-        <div class="chip" onclick="this.classList.toggle('selected')">🥾 Trekking</div>
-        <div class="chip" onclick="this.classList.toggle('selected')">🏖 Beach</div>
-        <div class="chip" onclick="this.classList.toggle('selected')">🍜 Food</div>
-        <div class="chip" onclick="this.classList.toggle('selected')">✨ Luxury</div>
-        <div class="chip" onclick="this.classList.toggle('selected')">💰 Budget</div>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label><i class="fa-solid fa-indian-rupee-sign"></i> Estimated Budget (per person)</label>
-      <input type="text" id="f-budget" placeholder="e.g. ₹80,000"/>
-    </div>
-
-    <div class="form-group">
-      <label><i class="fa-solid fa-circle-info"></i> Additional Notes</label>
-      <textarea id="f-notes" placeholder="Any special requirements, preferences, or things to know..."></textarea>
-    </div>
-
   </div>
 </div>
 
 <div class="create-submit">
-  <button onclick="submitTrip()">Post Trip ✈️</button>
+  <button id="submitBtn" onclick="submitTrip()">Post Trip ✈️</button>
 </div>
 
+<script src="js/api.js"></script>
 <script>
   const saved = localStorage.getItem('mtm-theme')||'dark';
   document.documentElement.setAttribute('data-theme', saved);
+  if(!requireAuth()) window.location.href='index.html';
 
-  function submitTrip() {
-    const dest = document.getElementById('f-dest').value.trim();
-    const bio  = document.getElementById('f-bio').value.trim();
-    if(!dest || !bio){ alert('Please fill in at least the destination and description.'); return; }
-    // In real app: POST to backend API
-    alert('🎉 Your trip has been posted! Companions will be able to find and join your group.');
-    window.location.href = 'home.html';
+  async function submitTrip(){
+    const group_name = document.getElementById('f-name').value.trim();
+    const destination = document.getElementById('f-dest').value.trim();
+    const description = document.getElementById('f-desc').value.trim();
+    const travel_month = parseInt(document.getElementById('f-month').value)||0;
+    const max_members = parseInt(document.getElementById('f-max').value)||4;
+
+    if(!group_name||!destination){showError('Please fill in group name and destination.');return;}
+
+    const btn = document.getElementById('submitBtn');
+    setLoading(btn, true);
+
+    try {
+      await GroupAPI.create({group_name, destination, description, travel_month, max_members});
+      showSuccess('Trip group created! 🎉');
+      setTimeout(()=>window.location.href='explore.html', 1200);
+    } catch(err){
+      showError(err.message||'Could not create group. Please try again.');
+      setLoading(btn, false, 'Post Trip ✈️');
+    }
   }
 </script>
 </body>

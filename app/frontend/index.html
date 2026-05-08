@@ -9,85 +9,35 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="css/style.css"/>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; width: 100%; overflow: hidden; }
-
-    /* Each page fills the viewport exactly */
-    .page {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      overflow-y: auto;
-      display: none;
-      background: var(--bg);
-    }
-    .page.active { display: block; }
-
-    /* ── Landing ── */
-    #page-landing {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      overflow: hidden;
-    }
-    #page-landing.active { display: flex; }
-
-    .landing-bg { position: absolute; inset: 0; z-index: 0; }
-    .landing-bg img { width: 100%; height: 100%; object-fit: cover; }
-    .landing-bg::after { content: ''; position: absolute; inset: 0; background: rgba(8,6,20,0.45); }
-
-    .landing-wrapper {
-      position: relative; z-index: 2;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      flex: 1; width: 100%; padding: 40px 28px;
-    }
-
-    .hex-frame {
-      position: relative; width: 260px; height: 300px;
-      clip-path: polygon(50% 0%,93% 18%,100% 62%,78% 100%,22% 100%,0% 62%,7% 18%);
-      overflow: hidden;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-    }
-    .hex-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.55) saturate(1.2); }
-    .hex-frame::after { content: ''; position: absolute; inset: 0; background: rgba(60,20,100,0.35); z-index: 1; }
-    .hex-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 24px 28px; width: 100%; }
-
-    .landing-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: #fff; letter-spacing: 1px; text-align: center; text-shadow: 0 2px 12px rgba(0,0,0,0.6); }
-    .landing-buttons { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
-    .btn-landing { width: 100%; padding: 12px 0; border-radius: 8px; font-size: 14px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; transition: transform .18s, opacity .18s; }
-    .btn-landing:hover { transform: translateY(-2px); opacity: .88; }
-    .btn-login  { background: var(--purple); color: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
-    .btn-signup { background: var(--purple-dark); color: #fff; border: 1px solid rgba(255,255,255,0.25); }
-    .landing-or { font-size: 13px; color: rgba(255,255,255,0.6); font-family: 'Playfair Display', serif; font-style: italic; }
-    .landing-tagline { position: relative; z-index: 2; font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.7; text-align: center; padding: 0 28px 32px; }
-
-    /* ── Auth page ── */
-    #page-login {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-    }
-    #page-login.active {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .auth-back {
-      position: fixed; top: 20px; left: 20px;
-      background: var(--bg-card); border: 1px solid var(--border-2);
-      border-radius: 50%; width: 40px; height: 40px;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--text-muted); font-size: 16px; cursor: pointer;
-      z-index: 10;
-    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{height:100%;width:100%;overflow:hidden;}
+    .page{position:fixed;top:0;left:0;width:100%;height:100%;overflow-y:auto;display:none;background:var(--bg);}
+    .page.active{display:block;}
+    #page-landing{display:none;flex-direction:column;align-items:center;justify-content:space-between;overflow:hidden;}
+    #page-landing.active{display:flex;}
+    .landing-bg{position:absolute;inset:0;z-index:0;}
+    .landing-bg img{width:100%;height:100%;object-fit:cover;}
+    .landing-bg::after{content:'';position:absolute;inset:0;background:rgba(8,6,20,0.45);}
+    .landing-wrapper{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;width:100%;padding:40px 28px;}
+    .hex-frame{position:relative;width:260px;height:300px;clip-path:polygon(50% 0%,93% 18%,100% 62%,78% 100%,22% 100%,0% 62%,7% 18%);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+    .hex-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(0.55) saturate(1.2);}
+    .hex-frame::after{content:'';position:absolute;inset:0;background:rgba(60,20,100,0.35);z-index:1;}
+    .hex-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:14px;padding:24px 28px;width:100%;}
+    .landing-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:#fff;letter-spacing:1px;text-align:center;text-shadow:0 2px 12px rgba(0,0,0,0.6);}
+    .landing-buttons{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;}
+    .btn-landing{width:100%;padding:12px 0;border-radius:8px;font-size:14px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;transition:transform .18s,opacity .18s;}
+    .btn-landing:hover{transform:translateY(-2px);opacity:.88;}
+    .btn-login{background:var(--purple);color:#fff;box-shadow:0 4px 16px rgba(0,0,0,0.4);}
+    .btn-signup{background:var(--purple-dark);color:#fff;border:1px solid rgba(255,255,255,0.25);}
+    .landing-or{font-size:13px;color:rgba(255,255,255,0.6);font-family:'Playfair Display',serif;font-style:italic;}
+    .landing-tagline{position:relative;z-index:2;font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7;text-align:center;padding:0 28px 32px;}
+    #page-login{display:none;align-items:center;justify-content:center;padding:60px 20px 40px;}
+    #page-login.active{display:flex;flex-direction:column;}
+    .auth-back{position:fixed;top:20px;left:20px;background:var(--bg-card);border:1px solid var(--border-2);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:16px;cursor:pointer;z-index:10;}
   </style>
 </head>
 <body>
 
-<!-- LANDING PAGE -->
 <div id="page-landing" class="page active">
   <div class="landing-bg"><img src="images/login.jpg" alt="City"/></div>
   <div class="landing-wrapper">
@@ -106,7 +56,6 @@
   <p class="landing-tagline">Ready for an adventure? Connect with fellow<br/>travelers and find your ideal companion.</p>
 </div>
 
-<!-- LOGIN / SIGNUP PAGE -->
 <div id="page-login" class="page">
   <button class="auth-back" onclick="showLanding()"><i class="fa-solid fa-arrow-left"></i></button>
   <div class="auth-container">
@@ -115,89 +64,92 @@
       <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
     </div>
 
-    <!-- Login Form -->
     <form class="auth-form" id="form-login">
       <div class="form-group">
-        <label><i class="fa-solid fa-envelope"></i> Email</label>
-        <input type="email" id="login-email" placeholder="Enter your email"/>
+        <label><i class="fa-solid fa-user"></i> Username</label>
+        <input type="text" id="login-username" placeholder="Enter your username"/>
       </div>
       <div class="form-group">
         <label><i class="fa-solid fa-lock"></i> Password</label>
         <input type="password" id="login-pass" placeholder="Enter your password"/>
       </div>
       <p class="auth-forgot">Forgot password?</p>
-      <button type="button" class="btn-auth" onclick="doLogin()">Log In</button>
+      <button type="button" class="btn-auth" id="loginBtn" onclick="doLogin()">Log In</button>
       <p class="auth-switch">Don't have an account? <span onclick="switchTab('signup')">Sign up</span></p>
     </form>
 
-    <!-- Sign Up Form -->
     <form class="auth-form hidden" id="form-signup">
       <div class="form-group">
-        <label><i class="fa-solid fa-user"></i> Full Name</label>
-        <input type="text" id="signup-name" placeholder="Enter your name"/>
-      </div>
-      <div class="form-group">
-        <label><i class="fa-solid fa-envelope"></i> Email</label>
-        <input type="email" id="signup-email" placeholder="Enter your email"/>
+        <label><i class="fa-solid fa-user"></i> Username</label>
+        <input type="text" id="signup-username" placeholder="Choose a username"/>
       </div>
       <div class="form-group">
         <label><i class="fa-solid fa-lock"></i> Password</label>
-        <input type="password" id="signup-pass" placeholder="Create a password"/>
+        <input type="password" id="signup-pass" placeholder="Create a password (min 6 chars)"/>
       </div>
       <div class="form-group">
         <label><i class="fa-solid fa-lock"></i> Confirm Password</label>
         <input type="password" id="signup-confirm" placeholder="Confirm your password"/>
       </div>
-      <button type="button" class="btn-auth" onclick="doSignup()">Create Account</button>
+      <button type="button" class="btn-auth" id="signupBtn" onclick="doSignup()">Continue →</button>
       <p class="auth-switch">Already have an account? <span onclick="switchTab('login')">Log in</span></p>
     </form>
   </div>
 </div>
 
+<script src="js/api.js"></script>
 <script>
-  // Apply saved theme
-  const saved = localStorage.getItem('mtm-theme') || 'dark';
+  const saved = localStorage.getItem('mtm-theme')||'dark';
   document.documentElement.setAttribute('data-theme', saved);
+
+  // Already logged in → go home
+  if(Auth.isLoggedIn()) window.location.href = 'home.html';
 
   function showAuth(tab) {
     document.getElementById('page-landing').classList.remove('active');
     document.getElementById('page-login').classList.add('active');
-    // scroll the login page itself to top
     document.getElementById('page-login').scrollTop = 0;
     switchTab(tab);
   }
-
   function showLanding() {
     document.getElementById('page-login').classList.remove('active');
     document.getElementById('page-landing').classList.add('active');
   }
-
   function switchTab(tab) {
-    document.getElementById('form-login').classList.toggle('hidden', tab !== 'login');
-    document.getElementById('form-signup').classList.toggle('hidden', tab !== 'signup');
-    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-    document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
-    // scroll to top of the page container
+    document.getElementById('form-login').classList.toggle('hidden', tab!=='login');
+    document.getElementById('form-signup').classList.toggle('hidden', tab!=='signup');
+    document.getElementById('tab-login').classList.toggle('active', tab==='login');
+    document.getElementById('tab-signup').classList.toggle('active', tab==='signup');
     document.getElementById('page-login').scrollTop = 0;
   }
 
-  function doLogin() {
-    const e = document.getElementById('login-email').value.trim();
-    const p = document.getElementById('login-pass').value.trim();
-    if (!e || !p) { alert('Please fill in all fields.'); return; }
-    const u = JSON.parse(sessionStorage.getItem('mtm_user') || '{}');
-    sessionStorage.setItem('mtm_user', JSON.stringify({ ...u, email: e }));
-    window.location.href = 'home.html';
+  async function doLogin() {
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-pass').value.trim();
+    if(!username||!password){showError('Please fill in all fields.');return;}
+    const btn = document.getElementById('loginBtn');
+    setLoading(btn, true);
+    try {
+      const data = await AuthAPI.login(username, password);
+      Auth.setToken(data.token);
+      sessionStorage.setItem('mtm_user', JSON.stringify({username}));
+      window.location.href = 'home.html';
+    } catch(err) {
+      showError(err.message||'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(btn, false, 'Log In');
+    }
   }
 
-  function doSignup() {
-    const n = document.getElementById('signup-name').value.trim();
-    const e = document.getElementById('signup-email').value.trim();
-    const p = document.getElementById('signup-pass').value.trim();
-    const c = document.getElementById('signup-confirm').value.trim();
-    if (!n || !e || !p) { alert('Please fill in all fields.'); return; }
-    if (p !== c) { alert('Passwords do not match.'); return; }
-    sessionStorage.setItem('mtm_user', JSON.stringify({ name: n, email: e }));
+  async function doSignup() {
+    const username = document.getElementById('signup-username').value.trim();
+    const password = document.getElementById('signup-pass').value.trim();
+    const confirm  = document.getElementById('signup-confirm').value.trim();
+    if(!username||!password){showError('Please fill in all fields.');return;}
+    if(password!==confirm){showError('Passwords do not match.');return;}
+    if(password.length<6){showError('Password must be at least 6 characters.');return;}
+    // Store credentials — account created after onboarding with full data
+    sessionStorage.setItem('mtm_pending', JSON.stringify({username, password}));
     window.location.href = 'onboarding.html';
   }
 </script>

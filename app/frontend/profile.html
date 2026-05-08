@@ -9,115 +9,85 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="css/style.css"/>
   <style>
-    .loc-edit-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .loc-edit-row:last-child { border-bottom: none; }
-    .loc-edit-icon { color: var(--purple-light); width: 18px; font-size: 14px; flex-shrink: 0; }
-    .loc-edit-content { flex: 1; min-width: 0; }
-    .loc-edit-label { font-size: .72rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
-    .loc-edit-input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      border-bottom: 1px dashed var(--border-2);
-      padding: 4px 0;
-      font-size: .9rem;
-      color: var(--text);
-      font-family: 'Outfit', sans-serif;
-      outline: none;
-      transition: border-color .2s;
-    }
-    .loc-edit-input:focus { border-bottom-color: var(--purple-light); }
-    .loc-edit-input::placeholder { color: var(--text-faint); }
-    .loc-save-btn {
-      margin-top: 14px;
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--purple), var(--purple-dark));
-      color: #fff;
-      font-size: .88rem;
-      font-weight: 700;
-      font-family: 'Outfit', sans-serif;
-      cursor: pointer;
-      border: none;
-      box-shadow: 0 4px 16px var(--purple-glow);
-      transition: opacity .2s;
-    }
-    .loc-save-btn:hover { opacity: .88; }
-    .save-toast {
-      display: none;
-      text-align: center;
-      font-size: .78rem;
-      color: var(--purple-light);
-      margin-top: 8px;
-      font-weight: 600;
-    }
-    .save-toast.show { display: block; }
+    .edit-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+    .edit-row:last-child{border-bottom:none;}
+    .edit-label{font-size:.78rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+    .edit-input{width:100%;background:transparent;border:none;border-bottom:1px dashed var(--border-2);padding:4px 0;font-size:.9rem;color:var(--text);font-family:'Outfit',sans-serif;outline:none;transition:border-color .2s;}
+    .edit-input:focus{border-bottom-color:var(--purple-light);}
+    .edit-input::placeholder{color:var(--text-faint);}
+    .edit-select{width:100%;background:var(--input-bg);border:1px solid var(--border-2);border-radius:8px;padding:8px 12px;font-size:.9rem;color:var(--text);font-family:'Outfit',sans-serif;outline:none;margin-top:4px;}
+    .edit-select option{background:var(--bg-2);}
+    .save-btn{width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,var(--purple),var(--purple-dark));color:#fff;font-size:.88rem;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;border:none;box-shadow:0 4px 16px var(--purple-glow);margin-top:14px;transition:opacity .2s;}
+    .save-btn:hover{opacity:.88;}
   </style>
 </head>
 <body>
 <div style="padding-bottom:80px;">
 
-  <!-- Profile Hero -->
   <div class="profile-hero">
     <div class="profile-avatar-wrap">
       <div class="profile-avatar-big" id="profileAvatar"><i class="fa-solid fa-user"></i></div>
     </div>
-    <div class="profile-name" id="profileName">Traveller</div>
-    <div class="profile-handle" id="profileHandle">@mytripmate</div>
-    <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:8px;" id="profileEmail"></div>
-    <button onclick="window.location.href='onboarding.html'" style="padding:9px 20px;border-radius:50px;border:1.5px solid var(--border-2);background:var(--bg-card);color:var(--text-muted);font-size:.82rem;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;">Edit Preferences</button>
+    <div class="profile-name" id="profileName">Loading...</div>
+    <div class="profile-handle" id="profileHandle">@username</div>
     <div class="profile-stats">
-      <div class="profile-stat"><div class="profile-stat-num" id="statTrips">0</div><div class="profile-stat-label">Trips</div></div>
       <div class="profile-stat"><div class="profile-stat-num" id="statGroups">0</div><div class="profile-stat-label">Groups</div></div>
+      <div class="profile-stat"><div class="profile-stat-num" id="statDest">—</div><div class="profile-stat-label">Destination</div></div>
       <div class="profile-stat"><div class="profile-stat-num">4.9</div><div class="profile-stat-label">Rating</div></div>
     </div>
   </div>
 
   <div class="profile-body">
 
-    <!-- Location Section (editable) -->
+    <!-- Edit Preferences -->
     <div class="profile-section">
-      <h3>My Locations</h3>
-      <div class="loc-edit-row">
-        <i class="fa-solid fa-location-dot loc-edit-icon"></i>
-        <div class="loc-edit-content">
-          <div class="loc-edit-label">Current Location</div>
-          <input class="loc-edit-input" id="editCurrentLoc" type="text" placeholder="e.g. Kolkata, India"/>
-        </div>
-      </div>
-      <div class="loc-edit-row">
-        <i class="fa-solid fa-plane-departure loc-edit-icon"></i>
-        <div class="loc-edit-content">
-          <div class="loc-edit-label">Preferred Destination</div>
-          <input class="loc-edit-input" id="editPreferredDest" type="text" placeholder="e.g. Paris, Bali, Himalayas..."/>
-        </div>
-      </div>
-      <button class="loc-save-btn" onclick="saveLocations()">
-        <i class="fa-solid fa-floppy-disk" style="margin-right:6px;"></i> Save Locations
-      </button>
-      <div class="save-toast" id="saveToast">✓ Locations saved successfully!</div>
-    </div>
-
-    <!-- Travel Preferences -->
-    <div class="profile-section" id="prefsSection" style="display:none;">
       <h3>Travel Preferences</h3>
-      <div id="prefTags"></div>
+      <div class="edit-row">
+        <div style="flex:1;">
+          <div class="edit-label">✈️ Preferred Destination</div>
+          <input class="edit-input" id="editDest" type="text" placeholder="e.g. Paris, Bali..."/>
+        </div>
+      </div>
+      <div class="edit-row">
+        <div style="flex:1;">
+          <div class="edit-label">📅 Travel Month</div>
+          <select class="edit-select" id="editMonth">
+            <option value="">Select month...</option>
+            <option value="1">January</option><option value="2">February</option>
+            <option value="3">March</option><option value="4">April</option>
+            <option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option>
+            <option value="9">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select>
+        </div>
+      </div>
+      <div class="edit-row">
+        <div style="flex:1;">
+          <div class="edit-label">💸 Budget (₹)</div>
+          <input class="edit-input" id="editBudget" type="number" placeholder="e.g. 50000"/>
+        </div>
+      </div>
+      <div class="edit-row">
+        <div style="flex:1;">
+          <div class="edit-label">🎂 Age</div>
+          <input class="edit-input" id="editAge" type="number" placeholder="Your age" min="18" max="99"/>
+        </div>
+      </div>
+      <button class="save-btn" id="saveBtn" onclick="savePrefs()">
+        <i class="fa-solid fa-floppy-disk" style="margin-right:6px;"></i> Save Changes
+      </button>
     </div>
 
-    <!-- Joined Groups -->
+    <!-- My Groups -->
     <div class="profile-section">
       <h3>My Groups</h3>
-      <div id="myGroups"></div>
+      <div id="myGroups">
+        <div style="color:var(--text-faint);font-size:.85rem;text-align:center;padding:16px 0;">Loading groups...</div>
+      </div>
     </div>
 
-    <!-- Settings -->
+    <!-- Account Settings -->
     <div class="profile-section">
       <h3>Account</h3>
       <div style="display:flex;flex-direction:column;gap:2px;">
@@ -125,13 +95,8 @@
           <span style="font-size:.9rem;display:flex;align-items:center;gap:10px;color:var(--text-muted);"><i class="fa-solid fa-moon" style="color:var(--purple-light);width:16px;"></i> Dark / Light Mode</span>
           <label class="toggle-switch"><input type="checkbox" id="themeToggle" onchange="toggleTheme()"/><span class="toggle-slider"></span></label>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;">
-          <span style="font-size:.9rem;display:flex;align-items:center;gap:10px;color:var(--text-muted);"><i class="fa-solid fa-bell" style="color:var(--purple-light);width:16px;"></i> Notifications</span>
-          <i class="fa-solid fa-chevron-right" style="color:var(--text-faint);font-size:12px;"></i>
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;">
-          <span style="font-size:.9rem;display:flex;align-items:center;gap:10px;color:var(--text-muted);"><i class="fa-solid fa-shield-halved" style="color:var(--purple-light);width:16px;"></i> Privacy & Safety</span>
-          <i class="fa-solid fa-chevron-right" style="color:var(--text-faint);font-size:12px;"></i>
+        <div style="padding:12px 0;cursor:pointer;border-bottom:1px solid var(--border);" onclick="window.location.href='onboarding.html'">
+          <span style="font-size:.9rem;display:flex;align-items:center;gap:10px;color:var(--text-muted);"><i class="fa-solid fa-sliders" style="color:var(--purple-light);width:16px;"></i> Redo Full Onboarding</span>
         </div>
         <div style="padding:12px 0;cursor:pointer;" onclick="logout()">
           <span style="font-size:.9rem;display:flex;align-items:center;gap:10px;color:#ef4444;"><i class="fa-solid fa-right-to-bracket" style="width:16px;"></i> Log Out</span>
@@ -142,7 +107,6 @@
   </div>
 </div>
 
-<!-- Bottom Nav -->
 <nav class="bottom-nav">
   <button class="bottom-nav-item" onclick="window.location.href='home.html'"><i class="fa-solid fa-house"></i><span>Home</span></button>
   <button class="bottom-nav-item" onclick="window.location.href='create-group.html'"><i class="fa-solid fa-plus"></i><span>Post</span></button>
@@ -151,71 +115,97 @@
   <button class="bottom-nav-item active"><i class="fa-solid fa-user"></i><span>Profile</span></button>
 </nav>
 
-<script src="js/data.js"></script>
+<script src="js/api.js"></script>
 <script>
   const saved = localStorage.getItem('mtm-theme')||'dark';
   document.documentElement.setAttribute('data-theme', saved);
   const toggle = document.getElementById('themeToggle');
-  if(toggle) toggle.checked = saved === 'light';
+  if(toggle) toggle.checked = saved==='light';
+  if(!requireAuth()) window.location.href='index.html';
 
-  function toggleTheme(){
-    const h=document.documentElement, isL=h.getAttribute('data-theme')==='light';
-    h.setAttribute('data-theme', isL?'dark':'light');
-    localStorage.setItem('mtm-theme', isL?'dark':'light');
-    if(toggle) toggle.checked=!isL;
+  function toggleTheme(){const h=document.documentElement,isL=h.getAttribute('data-theme')==='light';h.setAttribute('data-theme',isL?'dark':'light');localStorage.setItem('mtm-theme',isL?'dark':'light');if(toggle)toggle.checked=!isL;}
+
+  const MONTHS=['','January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  async function loadProfile(){
+    try {
+      const user = await AccountAPI.getProfile();
+
+      // Fill hero
+      document.getElementById('profileName').textContent = user.username||'Traveller';
+      document.getElementById('profileHandle').textContent = '@'+(user.username||'user');
+      document.getElementById('statDest').textContent = user.destination ? user.destination.split(',')[0] : '—';
+      if(user.pfp){
+        document.getElementById('profileAvatar').innerHTML=`<img src="${user.pfp}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"/>`;
+      }
+
+      // Fill editable fields
+      document.getElementById('editDest').value = user.destination||'';
+      if(user.travel_month) document.getElementById('editMonth').value = user.travel_month;
+      document.getElementById('editBudget').value = user.budget||'';
+      document.getElementById('editAge').value = user.age||'';
+
+      // Store user data
+      const local = JSON.parse(sessionStorage.getItem('mtm_user')||'{}');
+      sessionStorage.setItem('mtm_user', JSON.stringify({...local, ...user}));
+
+    } catch(err){
+      showError(err.message||'Could not load profile.');
+    }
   }
 
-  const user = JSON.parse(sessionStorage.getItem('mtm_user')||'{}');
+  async function loadGroups(){
+    try {
+      const data = await GroupAPI.getAll();
+      const joined = (data.groups||[]).filter(g=>g.joined===1);
+      document.getElementById('statGroups').textContent = joined.length;
 
-  // Fill profile info
-  if(user.name)     document.getElementById('profileName').textContent = user.name;
-  if(user.username) document.getElementById('profileHandle').textContent = user.username;
-  if(user.email)    document.getElementById('profileEmail').textContent = user.email;
-  if(user.avatar){
-    document.getElementById('profileAvatar').innerHTML = `<img src="${user.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"/>`;
+      if(!joined.length){
+        document.getElementById('myGroups').innerHTML=`<p style="font-size:.85rem;color:var(--text-muted);text-align:center;padding:16px 0;">You haven't joined any groups yet.<br/><span onclick="window.location.href='explore.html'" style="color:var(--purple-light);cursor:pointer;font-weight:600;">Explore trips →</span></p>`;
+        return;
+      }
+      document.getElementById('myGroups').innerHTML=`<div class="profile-trips-grid">${joined.map(g=>`
+        <div class="profile-trip-thumb" onclick="sessionStorage.setItem('mtm_group','${g.group_id}');window.location.href='detail.html'">
+          <div style="width:100%;height:90px;background:linear-gradient(135deg,var(--purple-dark),var(--purple));display:flex;align-items:center;justify-content:center;border-radius:10px;">
+            <span style="font-family:'Playfair Display',serif;font-size:.9rem;font-weight:800;color:#fff;">${g.destination||g.group_name}</span>
+          </div>
+        </div>`).join('')}</div>`;
+    } catch(err){}
   }
 
-  // Pre-fill location inputs from saved data
-  if(user.currentLocation) document.getElementById('editCurrentLoc').value = user.currentLocation;
-  if(user.preferredDest)   document.getElementById('editPreferredDest').value = user.preferredDest;
+  async function savePrefs(){
+    const btn = document.getElementById('saveBtn');
+    setLoading(btn, true);
+    const payload = {};
+    const dest = document.getElementById('editDest').value.trim();
+    const month = parseInt(document.getElementById('editMonth').value)||0;
+    const budget = parseInt(document.getElementById('editBudget').value)||0;
+    const age = parseInt(document.getElementById('editAge').value)||0;
+    if(dest) payload.destination=dest;
+    if(month) payload.travel_month=month;
+    if(budget) payload.budget=budget;
+    if(age) payload.age=age;
 
-  // Save locations
-  function saveLocations() {
-    const currentLocation = document.getElementById('editCurrentLoc').value.trim();
-    const preferredDest   = document.getElementById('editPreferredDest').value.trim();
-    const updated = {...user, currentLocation, preferredDest};
-    sessionStorage.setItem('mtm_user', JSON.stringify(updated));
-    // Show toast
-    const toast = document.getElementById('saveToast');
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
+    try {
+      await AccountAPI.update(payload);
+      showSuccess('Preferences saved!');
+      loadProfile();
+    } catch(err){
+      showError(err.message||'Could not save.');
+    } finally {
+      setLoading(btn, false, '<i class="fa-solid fa-floppy-disk" style="margin-right:6px;"></i> Save Changes');
+    }
   }
 
-  // Preferences tags
-  const prefs = [...(user.terrain||[]), ...(user.style||[])];
-  if(prefs.length){
-    document.getElementById('prefsSection').style.display='block';
-    document.getElementById('prefTags').innerHTML = prefs.map(p=>`<span class="pref-tag"><i class="fa-solid fa-tag"></i>${p}</span>`).join('');
+  function logout(){
+    AuthAPI.logout().catch(()=>{});
+    Auth.removeToken();
+    sessionStorage.clear();
+    window.location.href='index.html';
   }
 
-  // Joined groups
-  const joinedIds = JSON.parse(sessionStorage.getItem('mtm_joined')||'[]');
-  const joinedTrips = trips.filter(t=>joinedIds.includes(t.id));
-  document.getElementById('statGroups').textContent = joinedTrips.length;
-  document.getElementById('statTrips').textContent  = joinedTrips.length;
-
-  const myGroupsEl = document.getElementById('myGroups');
-  if(!joinedTrips.length){
-    myGroupsEl.innerHTML=`<p style="font-size:.85rem;color:var(--text-muted);text-align:center;padding:16px 0;">You haven't joined any groups yet.<br/><span onclick="window.location.href='explore.html'" style="color:var(--purple-light);cursor:pointer;font-weight:600;">Explore trips →</span></p>`;
-  } else {
-    myGroupsEl.innerHTML=`<div class="profile-trips-grid">${joinedTrips.map(t=>`
-      <div class="profile-trip-thumb" onclick="openDetail(${t.id})">
-        <img src="${t.image}" alt="${t.dest}" loading="lazy"/>
-        <div class="pt-label">${t.dest}</div>
-      </div>`).join('')}</div>`;
-  }
-
-  function logout(){sessionStorage.clear();window.location.href='index.html';}
+  loadProfile();
+  loadGroups();
 </script>
 </body>
 </html>

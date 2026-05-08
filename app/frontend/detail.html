@@ -2,122 +2,291 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MyTripMate — Trip Detail</title>
+  <title>MyTripMate — Group Detail</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .admin-panel{background:rgba(123,79,166,.08);border:1px solid rgba(123,79,166,.3);border-radius:16px;padding:18px;margin-bottom:14px;}
+    .admin-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--purple),var(--purple-dark));color:#fff;font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:50px;margin-bottom:14px;letter-spacing:.05em;text-transform:uppercase;}
+    .admin-tabs{display:flex;gap:0;margin-bottom:16px;background:var(--input-bg);border-radius:10px;padding:4px;}
+    .admin-tab{flex:1;padding:9px;border:none;background:transparent;color:var(--text-muted);font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;border-radius:8px;transition:all .2s;}
+    .admin-tab.active{background:var(--purple);color:#fff;}
+    .request-item{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);gap:12px;}
+    .request-item:last-child{border-bottom:none;}
+    .request-user{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+    .request-avatar{width:36px;height:36px;border-radius:50%;background:rgba(123,79,166,.2);border:1.5px solid rgba(123,79,166,.4);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:var(--lavender);flex-shrink:0;}
+    .request-name{font-size:.88rem;font-weight:600;color:var(--text);}
+    .request-actions{display:flex;gap:8px;flex-shrink:0;}
+    .btn-approve{padding:7px 14px;border-radius:8px;background:#22c55e;color:#fff;font-size:.78rem;font-weight:700;border:none;cursor:pointer;font-family:'Outfit',sans-serif;}
+    .btn-reject{padding:7px 14px;border-radius:8px;background:var(--bg-card);color:#ef4444;font-size:.78rem;font-weight:700;border:1px solid rgba(239,68,68,.3);cursor:pointer;font-family:'Outfit',sans-serif;}
+    .no-requests{text-align:center;padding:16px 0;font-size:.85rem;color:var(--text-faint);}
+    .settings-form input,.settings-form select,.settings-form textarea{width:100%;background:var(--input-bg);border:1px solid var(--border-2);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);font-family:'Outfit',sans-serif;outline:none;transition:border-color .2s;margin-top:6px;}
+    .settings-form input:focus,.settings-form select:focus,.settings-form textarea:focus{border-color:var(--purple-light);}
+    .settings-form textarea{resize:vertical;min-height:70px;}
+    .settings-form select option{background:var(--bg-2);}
+    .field-label{font-size:.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px;margin-top:12px;}
+    .field-label i{color:var(--purple-light);}
+    .btn-save-settings{width:100%;padding:12px;border-radius:10px;margin-top:14px;background:linear-gradient(135deg,var(--purple),var(--purple-dark));color:#fff;font-size:.9rem;font-weight:700;font-family:'Outfit',sans-serif;border:none;cursor:pointer;box-shadow:0 4px 16px var(--purple-glow);}
+    .btn-leave{width:100%;padding:14px;border-radius:12px;background:transparent;color:#ef4444;border:1.5px solid rgba(239,68,68,.4);font-size:.9rem;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;transition:all .2s;}
+    .btn-leave:hover{background:rgba(239,68,68,.08);}
+  </style>
 </head>
 <body>
-
-<div id="page-detail" style="padding-bottom:100px;">
-
-  <!-- Detail Header -->
+<div style="padding-bottom:100px;">
   <header class="detail-header">
     <div class="detail-header-left">
-      <button onclick="window.history.back()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;margin-right:4px;"><i class="fa-solid fa-arrow-left"></i></button>
-      <div class="detail-avatar" id="detailAvatar">SH</div>
-      <div><p class="detail-handle" id="detailHandle">@sleepy_head17</p></div>
+      <button onclick="window.history.back()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="detail-avatar" id="detailAvatar">GR</div>
+      <div><p class="detail-handle" id="detailHandle">@admin</p></div>
     </div>
-    <div class="detail-spots">
-      <i class="fa-solid fa-user-group"></i>
-      <span id="detailSpots">3</span>
-    </div>
+    <div class="detail-spots"><i class="fa-solid fa-user-group"></i><span id="detailSpots">0/0</span></div>
   </header>
 
-  <!-- Meta bar -->
-  <div class="detail-meta-bar">
-    <div class="detail-meta-dates">
-      <i class="fa-regular fa-calendar"></i>
-      <span id="detailDates">14.05.2027 – 10.06.2027</span>
-    </div>
-    <div class="detail-meta-slots">
-      <span id="detailSlotsFilled">3</span>/<span id="detailSlotsMax">5</span>
-      <i class="fa-solid fa-user-group"></i>
+  <div class="detail-hero-img" style="background:linear-gradient(135deg,var(--purple-dark),var(--purple));height:220px;display:flex;align-items:center;justify-content:center;">
+    <div class="detail-hero-overlay" style="position:relative;inset:unset;background:none;padding:20px;text-align:left;width:100%;">
+      <h1 class="detail-city" id="detailCity">GROUP</h1>
+      <p class="detail-subhandle" id="detailSubHandle">@admin</p>
+      <p class="detail-tagline" id="detailTagline">Loading...</p>
     </div>
   </div>
 
-  <!-- Hero image -->
-  <div class="detail-hero-img">
-    <img src="images/paris.jpg" alt="Destination" id="detailHeroImg"/>
-    <div class="detail-hero-overlay">
-      <h1 class="detail-city" id="detailCity">PARIS</h1>
-      <p class="detail-subhandle" id="detailSubHandle">@sleepy_head17</p>
-      <p class="detail-tagline" id="detailTagline">Looking for jobless ppl :)</p>
-    </div>
-  </div>
-
-  <!-- Body -->
   <div class="detail-body">
-    <div class="detail-section">
-      <h3 class="detail-section-title">Itinerary</h3>
-      <div class="itinerary" id="detailItinerary"></div>
-    </div>
-    <div class="detail-section">
-      <h3 class="detail-section-title">Cost Breakdown</h3>
-      <div class="cost-list" id="detailCost"></div>
-    </div>
-  </div>
 
+    <!-- Group Info -->
+    <div class="detail-section">
+      <h3 class="detail-section-title">Group Info</h3>
+      <div id="groupInfo">Loading...</div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" style="display:none;" class="admin-panel">
+      <div class="admin-badge"><i class="fa-solid fa-shield-halved"></i> Admin Panel</div>
+      <div class="admin-tabs">
+        <button class="admin-tab active" id="tabRequests" onclick="switchAdminTab('requests')">
+          <i class="fa-solid fa-clock"></i> Requests
+          <span id="requestCount" style="background:rgba(255,255,255,.2);padding:1px 7px;border-radius:50px;font-size:.68rem;margin-left:4px;">0</span>
+        </button>
+        <button class="admin-tab" id="tabSettings" onclick="switchAdminTab('settings')">
+          <i class="fa-solid fa-gear"></i> Settings
+        </button>
+      </div>
+
+      <!-- Requests Tab -->
+      <div id="requestsTab">
+        <div id="requestsList"><div class="no-requests">Loading...</div></div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div id="settingsTab" style="display:none;" class="settings-form">
+        <div class="field-label"><i class="fa-solid fa-tag"></i> Group Name</div>
+        <input type="text" id="editGroupName" placeholder="Group name"/>
+        <div class="field-label"><i class="fa-solid fa-map-location-dot"></i> Destination</div>
+        <input type="text" id="editGroupDest" placeholder="Destination"/>
+        <div class="field-label"><i class="fa-solid fa-align-left"></i> Description</div>
+        <textarea id="editGroupDesc" placeholder="Description"></textarea>
+        <div class="field-label"><i class="fa-regular fa-calendar"></i> Travel Month</div>
+        <select id="editGroupMonth">
+          <option value="">Select month...</option>
+          <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+          <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+          <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+          <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+        </select>
+        <div class="field-label"><i class="fa-solid fa-users"></i> Max Members</div>
+        <select id="editGroupMax">
+          <option value="2">2 people</option><option value="3">3 people</option>
+          <option value="4">4 people</option><option value="5">5 people</option>
+          <option value="6">6 people</option><option value="8">8 people</option><option value="10">10+ people</option>
+        </select>
+        <button class="btn-save-settings" id="saveSettingsBtn" onclick="saveGroupSettings()">
+          <i class="fa-solid fa-floppy-disk" style="margin-right:6px;"></i> Save Changes
+        </button>
+      </div>
+    </div>
+
+    <!-- Group Chat -->
+    <div class="detail-section" id="chatSection" style="display:none;">
+      <h3 class="detail-section-title">Group Chat</h3>
+      <button onclick="openChat()" style="width:100%;padding:12px;border-radius:10px;background:var(--purple);color:#fff;font-size:.9rem;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;border:none;">
+        <i class="fa-solid fa-message" style="margin-right:8px;"></i>Open Chat
+      </button>
+    </div>
+
+    <!-- Leave Group (members only) -->
+    <div id="leaveSection" style="display:none;padding:0 0 14px;">
+      <button class="btn-leave" onclick="leaveGroup()">
+        <i class="fa-solid fa-right-from-bracket" style="margin-right:8px;"></i>Leave Group
+      </button>
+    </div>
+
+  </div>
 </div>
 
-<!-- Ask to Join -->
 <div class="detail-cta">
   <button class="btn-ask-join" id="joinBtn" onclick="askToJoin()">ASK TO JOIN</button>
 </div>
 
-<script src="js/data.js"></script>
+<script src="js/api.js"></script>
 <script>
   const saved = localStorage.getItem('mtm-theme')||'dark';
   document.documentElement.setAttribute('data-theme', saved);
+  if(!requireAuth()) window.location.href='index.html';
 
-  const tripId = parseInt(sessionStorage.getItem('mtm_trip')||'1');
-  const trip = trips.find(t=>t.id===tripId) || trips[0];
+  const groupId = sessionStorage.getItem('mtm_group');
+  if(!groupId){window.location.href='explore.html';}
+  const currentUser = JSON.parse(sessionStorage.getItem('mtm_user')||'{}');
+  let currentGroup = null;
 
-  // Populate
   function setTxt(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
-  setTxt('detailAvatar', trip.initials);
-  setTxt('detailHandle', trip.handle);
-  setTxt('detailSpots', trip.spotsFilled);
-  setTxt('detailDates', trip.dates);
-  setTxt('detailSlotsFilled', trip.spotsFilled);
-  setTxt('detailSlotsMax', trip.spotsTotal);
-  setTxt('detailCity', trip.dest);
-  setTxt('detailSubHandle', trip.handle);
-  setTxt('detailTagline', trip.bio);
-  document.getElementById('detailHeroImg').src = trip.image;
-  document.title = `MyTripMate — ${trip.dest}`;
 
-  // Itinerary
-  document.getElementById('detailItinerary').innerHTML = trip.itinerary.map(d=>`
-    <div class="itin-day">
-      <p class="itin-day-label">${d.day}</p>
-      <ul>${d.activities.map(a=>`<li>${a}</li>`).join('')}</ul>
-    </div>`).join('');
-
-  // Cost
-  document.getElementById('detailCost').innerHTML = trip.costBreakdown.map(r=>`
-    <div class="cost-row ${r.isTotal?'cost-total':''}">
-      <span>${r.label}</span><span>${r.value}</span>
-    </div>`).join('');
-
-  // Join state
-  const isFull = trip.spotsFilled >= trip.spotsTotal;
-  const joined = JSON.parse(sessionStorage.getItem('mtm_joined')||'[]');
-  const alreadyJoined = joined.includes(trip.id);
-  const btn = document.getElementById('joinBtn');
-  if(isFull){ btn.textContent='Group Full'; btn.disabled=true; btn.style.opacity='.5'; }
-  else if(alreadyJoined){ btn.textContent='✓ Request Sent'; btn.disabled=true; btn.style.background='var(--purple-dark)'; }
-
-  function askToJoin() {
-    const joined = JSON.parse(sessionStorage.getItem('mtm_joined')||'[]');
-    joined.push(trip.id);
-    sessionStorage.setItem('mtm_joined', JSON.stringify(joined));
-    btn.textContent = '✓ Request Sent!';
-    btn.disabled = true;
-    btn.style.background = 'var(--purple-dark)';
+  function switchAdminTab(tab) {
+    document.getElementById('requestsTab').style.display = tab==='requests'?'block':'none';
+    document.getElementById('settingsTab').style.display  = tab==='settings' ?'block':'none';
+    document.getElementById('tabRequests').classList.toggle('active', tab==='requests');
+    document.getElementById('tabSettings').classList.toggle('active', tab==='settings');
   }
+
+  async function loadGroup(){
+    try {
+      const data = await GroupAPI.getAll();
+      const g = (data.groups||[]).find(g=>g.group_id===groupId);
+      if(!g){showError('Group not found.');return;}
+      currentGroup = g;
+
+      setTxt('detailAvatar',   (g.admin||'GR').slice(0,2).toUpperCase());
+      setTxt('detailHandle',   '@'+(g.admin||'unknown'));
+      setTxt('detailSpots',    `${g.current_members||0}/${g.max_members||'?'}`);
+      setTxt('detailCity',     (g.destination||g.group_name||'GROUP').toUpperCase());
+      setTxt('detailSubHandle','@'+(g.admin||'unknown'));
+      setTxt('detailTagline',  g.description||'');
+      document.title = `MyTripMate — ${g.destination||g.group_name}`;
+
+      const MONTHS=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      document.getElementById('groupInfo').innerHTML=`
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:.9rem;color:var(--text-muted);">
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);"><span>📍 Destination</span><strong>${g.destination||'N/A'}</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);"><span>📅 Travel Month</span><strong>${MONTHS[g.travel_month]||'N/A'}</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);"><span>👥 Members</span><strong>${g.current_members||0} / ${g.max_members||'?'}</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;"><span>🏷️ Group Name</span><strong>${g.group_name||'N/A'}</strong></div>
+        </div>`;
+
+      const btn=document.getElementById('joinBtn');
+      console.log('Admin check:', g.admin, '===', currentUser.username, '->', g.admin===currentUser.username);
+      const isFull=g.current_members>=g.max_members, isPending=g.request_pending===1;
+      const isJoined=g.joined===1, isAdmin=g.admin===currentUser.username;
+
+      if(isAdmin){
+        btn.textContent='⚙️ You are the Admin'; btn.disabled=true; btn.style.opacity='.7';
+        document.getElementById('adminPanel').style.display='block';
+        document.getElementById('chatSection').style.display='block';
+        document.getElementById('editGroupName').value  = g.group_name||'';
+        document.getElementById('editGroupDest').value  = g.destination||'';
+        document.getElementById('editGroupDesc').value  = g.description||'';
+        if(g.travel_month) document.getElementById('editGroupMonth').value=g.travel_month;
+        if(g.max_members)  document.getElementById('editGroupMax').value=g.max_members;
+        loadRequests();
+      } else if(isJoined){
+        btn.textContent='✓ You are a member'; btn.disabled=true; btn.style.opacity='.7';
+        document.getElementById('chatSection').style.display='block';
+        document.getElementById('leaveSection').style.display='block';
+      } else if(isPending){
+        btn.textContent='⏳ Request Pending'; btn.disabled=true; btn.style.opacity='.7';
+      } else if(isFull){
+        btn.textContent='🔒 Group Full'; btn.disabled=true; btn.style.opacity='.5';
+      }
+    } catch(err){showError(err.message||'Could not load group.');}
+  }
+
+  async function loadRequests(){
+    try {
+      // First call may return processing started, retry after delay
+      let data = await GroupAPI.getRequests(groupId);
+      let requests = data.requests || data.pending_requests || data.data || (Array.isArray(data) ? data : []);
+
+      // If backend returns processing message, wait and retry once
+      if(!requests.length && (data.message || data.success)) {
+        await new Promise(r => setTimeout(r, 1500));
+        data = await GroupAPI.getRequests(groupId);
+        requests = data.requests || data.pending_requests || data.data || (Array.isArray(data) ? data : []);
+      }
+      console.log('Requests data:', data, 'Parsed:', requests);
+      document.getElementById('requestCount').textContent=requests.length;
+      if(!requests.length){document.getElementById('requestsList').innerHTML='<div class="no-requests"><i class="fa-solid fa-inbox" style="display:block;font-size:1.2rem;margin-bottom:6px;"></i>No pending requests</div>';return;}
+      document.getElementById('requestsList').innerHTML=requests.map(r=>`
+        <div class="request-item" id="req-${r.user_id}">
+          <div class="request-user">
+            <div class="request-avatar">${(r.username||'?').slice(0,2).toUpperCase()}</div>
+            <div><div class="request-name">@${r.username||r.user_id}</div><div style="font-size:.72rem;color:var(--text-faint);">Wants to join</div></div>
+          </div>
+          <div class="request-actions">
+            <button class="btn-approve" onclick="handleRequest('${r.user_id}','allow',this)"><i class="fa-solid fa-check"></i> Accept</button>
+            <button class="btn-reject"  onclick="handleRequest('${r.user_id}','reject',this)"><i class="fa-solid fa-xmark"></i> Decline</button>
+          </div>
+        </div>`).join('');
+    } catch(err){document.getElementById('requestsList').innerHTML=`<div class="no-requests">${err.message}</div>`;}
+  }
+
+  async function handleRequest(user_id,action,btn){
+    const row=document.getElementById(`req-${user_id}`);
+    const username=row.querySelector('.request-name').textContent;
+    btn.disabled=true;btn.style.opacity='.5';
+    try {
+      if(action==='allow'){
+        await GroupAPI.allow(groupId,user_id);
+        row.innerHTML=`<div class="request-user"><div class="request-avatar" style="background:rgba(34,197,94,.2);border-color:rgba(34,197,94,.4);color:#22c55e;">✓</div><div><div class="request-name">${username}</div><div style="font-size:.72rem;color:#22c55e;font-weight:600;">Accepted</div></div></div>`;
+        const spots=document.getElementById('detailSpots');const[cur,max]=spots.textContent.split('/');spots.textContent=`${parseInt(cur)+1}/${max}`;
+        showSuccess('Member accepted!');
+      } else {
+        await GroupAPI.reject(groupId,user_id);
+        row.innerHTML=`<div class="request-user"><div class="request-avatar" style="background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.3);color:#ef4444;">✕</div><div><div class="request-name">${username}</div><div style="font-size:.72rem;color:#ef4444;font-weight:600;">Declined</div></div></div>`;
+        showSuccess('Request declined.');
+      }
+      document.getElementById('requestCount').textContent=document.querySelectorAll('.request-item .btn-approve:not([disabled])').length;
+    } catch(err){showError(err.message||'Action failed.');btn.disabled=false;btn.style.opacity='1';}
+  }
+
+  async function saveGroupSettings(){
+    const btn=document.getElementById('saveSettingsBtn');
+    setLoading(btn,true);
+    const payload={group_id:groupId};
+    const name=document.getElementById('editGroupName').value.trim();
+    const dest=document.getElementById('editGroupDest').value.trim();
+    const desc=document.getElementById('editGroupDesc').value.trim();
+    const month=parseInt(document.getElementById('editGroupMonth').value)||0;
+    const max=parseInt(document.getElementById('editGroupMax').value)||0;
+    if(name) payload.group_name=name;
+    if(dest) payload.destination=dest;
+    if(desc) payload.description=desc;
+    if(month) payload.travel_month=month;
+    if(max)   payload.max_members=max;
+    try {
+      await GroupAPI.update(payload);
+      showSuccess('Group settings saved!');
+      loadGroup();
+    } catch(err){showError(err.message||'Could not save settings.');}
+    finally{setLoading(btn,false,'<i class="fa-solid fa-floppy-disk" style="margin-right:6px;"></i> Save Changes');}
+  }
+
+  async function askToJoin(){
+    const btn=document.getElementById('joinBtn');setLoading(btn,true);
+    try{await GroupAPI.join(groupId);btn.textContent='⏳ Request Sent!';btn.disabled=true;btn.style.opacity='.7';showSuccess('Join request sent!');}
+    catch(err){showError(err.message||'Could not send join request.');setLoading(btn,false,'ASK TO JOIN');}
+  }
+
+  async function leaveGroup(){
+    if(!confirm('Are you sure you want to leave this group?')) return;
+    try{
+      await GroupAPI.leave(groupId);
+      showSuccess('You have left the group.');
+      setTimeout(()=>window.location.href='explore.html',1200);
+    } catch(err){showError(err.message||'Could not leave group.');}
+  }
+
+  function openChat(){window.location.href='chat.html';}
+  loadGroup();
 </script>
 </body>
 </html>

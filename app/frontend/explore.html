@@ -8,37 +8,27 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .filter-chip{padding:7px 16px;border-radius:50px;border:1.5px solid var(--border-2);background:var(--bg-card);color:var(--text-muted);font-size:.8rem;font-weight:500;cursor:pointer;white-space:nowrap;font-family:'Outfit',sans-serif;transition:all .2s;flex-shrink:0;}
+    .filter-chip.active{background:var(--purple);border-color:var(--purple);color:#fff;}
+  </style>
 </head>
 <body>
-
-<div id="page-explore" style="padding-bottom:80px;">
-
-  <!-- Search Header -->
+<div style="padding-bottom:80px;">
   <header class="search-header">
     <div style="display:flex;align-items:center;gap:10px;">
-      <button onclick="window.location.href='home.html'" style="background:none;color:var(--text-muted);font-size:18px;padding:4px 8px;"><i class="fa-solid fa-arrow-left"></i></button>
+      <button onclick="window.location.href='home.html'" style="background:none;color:var(--text-muted);font-size:18px;border:none;cursor:pointer;padding:4px;"><i class="fa-solid fa-arrow-left"></i></button>
       <div class="search-bar-wrap" style="flex:1;">
-        <input type="text" id="searchInput" placeholder="Search destinations, groups..." onkeydown="if(event.key==='Enter')filterTrips()" oninput="filterTrips()"/>
-        <button onclick="filterTrips()"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <input type="text" id="searchInput" placeholder="Search groups or destinations..." oninput="filterGroups()"/>
+        <button><i class="fa-solid fa-magnifying-glass"></i></button>
       </div>
     </div>
-
-    <!-- Filter chips row -->
-    <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-top:12px;padding-bottom:2px;">
-      <button class="filter-chip active" onclick="setFilter('all',this)">All</button>
-      <button class="filter-chip" onclick="setFilter('beach',this)">🏖 Beach</button>
-      <button class="filter-chip" onclick="setFilter('mountains',this)">🏔 Mountains</button>
-      <button class="filter-chip" onclick="setFilter('cultural',this)">🎭 Cultural</button>
-      <button class="filter-chip" onclick="setFilter('trekking',this)">🥾 Trekking</button>
-      <button class="filter-chip" onclick="setFilter('adventurous',this)">⚡ Adventure</button>
-      <button class="filter-chip" onclick="setFilter('luxury',this)">✨ Luxury</button>
-    </div>
   </header>
-
-  <div class="trips-list" id="tripsList"></div>
+  <div class="trips-list" id="tripsList">
+    <div style="text-align:center;padding:40px;color:var(--text-faint);">Loading groups...</div>
+  </div>
 </div>
 
-<!-- Bottom Nav -->
 <nav class="bottom-nav">
   <button class="bottom-nav-item" onclick="window.location.href='home.html'"><i class="fa-solid fa-house"></i><span>Home</span></button>
   <button class="bottom-nav-item" onclick="window.location.href='create-group.html'"><i class="fa-solid fa-plus"></i><span>Post</span></button>
@@ -47,47 +37,95 @@
   <button class="bottom-nav-item" onclick="window.location.href='profile.html'"><i class="fa-solid fa-user"></i><span>Profile</span></button>
 </nav>
 
-<style>
-  .filter-chip{padding:7px 16px;border-radius:50px;border:1.5px solid var(--border-2);background:var(--bg-card);color:var(--text-muted);font-size:.8rem;font-weight:500;cursor:pointer;white-space:nowrap;font-family:'Outfit',sans-serif;transition:all .2s;flex-shrink:0;}
-  .filter-chip.active{background:var(--purple);border-color:var(--purple);color:#fff;}
-</style>
-
-<script src="js/data.js"></script>
+<script src="js/api.js"></script>
 <script>
   const saved = localStorage.getItem('mtm-theme')||'dark';
   document.documentElement.setAttribute('data-theme', saved);
+  if(!requireAuth()) window.location.href='index.html';
 
-  let activeFilter = 'all';
+  let allGroups = [];
 
-  // Pre-fill search from home
   const preSearch = sessionStorage.getItem('mtm_search');
-  if(preSearch){ document.getElementById('searchInput').value = preSearch; sessionStorage.removeItem('mtm_search'); }
+  if(preSearch){document.getElementById('searchInput').value=preSearch;sessionStorage.removeItem('mtm_search');}
 
-  function setFilter(f, el) {
-    activeFilter = f;
-    document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-    el.classList.add('active');
-    filterTrips();
+  function renderGroupCard(g) {
+    const isFull = g.current_members >= g.max_members;
+    const isPending = g.request_pending === 1;
+    const isJoined = g.joined === 1;
+    return `
+      <div class="trip-card" onclick="openGroup('${g.group_id}')">
+        <div class="trip-img-wrap">
+          <div style="width:100%;height:150px;background:linear-gradient(135deg,var(--purple-dark),var(--purple));display:flex;align-items:center;justify-content:center;">
+            <span class="trip-dest-name">${g.destination||g.group_name}</span>
+          </div>
+        </div>
+        <div class="trip-card-body">
+          <div class="trip-user-row">
+            <div class="trip-avatar">${(g.admin||'?').slice(0,2).toUpperCase()}</div>
+            <div>
+              <p class="trip-handle">@${g.admin||'unknown'}</p>
+              <p class="trip-bio">${g.description||'No description'}</p>
+            </div>
+          </div>
+          <div class="trip-card-footer">
+            <div class="trip-spots-row">
+              <span class="spots-text">${g.current_members||0}/${g.max_members||'?'} members</span>
+            </div>
+            <button class="btn-join ${isFull?'full':''}" onclick="event.stopPropagation();joinGroup('${g.group_id}',this)">
+              ${isJoined?'<i class="fa-solid fa-check"></i> Joined'
+                :isPending?'<i class="fa-solid fa-clock"></i> Pending'
+                :isFull?'<i class="fa-solid fa-lock"></i> Full'
+                :'<i class="fa-solid fa-plus"></i> Join'}
+            </button>
+          </div>
+        </div>
+      </div>`;
   }
 
-  function filterTrips() {
-    const q = (document.getElementById('searchInput').value||'').trim().toLowerCase();
-    let filtered = trips;
-    if(activeFilter !== 'all') filtered = filtered.filter(t=>[...(t.terrain||[]),...(t.style||[])].includes(activeFilter));
-    if(q) filtered = filtered.filter(t=>t.dest.toLowerCase().includes(q)||t.city.toLowerCase().includes(q)||t.country.toLowerCase().includes(q)||t.handle.toLowerCase().includes(q)||t.bio.toLowerCase().includes(q));
+  function filterGroups() {
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    const filtered = q ? allGroups.filter(g =>
+      (g.destination||'').toLowerCase().includes(q) ||
+      (g.group_name||'').toLowerCase().includes(q) ||
+      (g.admin||'').toLowerCase().includes(q) ||
+      (g.description||'').toLowerCase().includes(q)
+    ) : allGroups;
     renderList(filtered);
   }
 
   function renderList(list) {
-    const el = document.getElementById('tripsList');
     if(!list.length){
-      el.innerHTML=`<div style="text-align:center;padding:60px 20px;color:var(--text-muted);"><i class="fa-solid fa-magnifying-glass" style="font-size:32px;margin-bottom:14px;color:var(--purple-light);display:block;"></i><p style="font-size:15px;font-weight:600;">No trips found</p><p style="font-size:13px;margin-top:6px;">Try a different search or filter</p></div>`;
+      document.getElementById('tripsList').innerHTML=`<div style="text-align:center;padding:60px 20px;color:var(--text-muted);"><i class="fa-solid fa-magnifying-glass" style="font-size:32px;margin-bottom:14px;color:var(--purple-light);display:block;"></i><p>No groups found</p></div>`;
       return;
     }
-    el.innerHTML = list.map(t => renderTripCard(t)).join('');
+    document.getElementById('tripsList').innerHTML = list.map(g => renderGroupCard(g)).join('');
   }
 
-  filterTrips();
+  async function joinGroup(group_id, btn) {
+    try {
+      await GroupAPI.join(group_id);
+      btn.innerHTML = '<i class="fa-solid fa-clock"></i> Pending';
+      btn.classList.add('full');
+      showSuccess('Join request sent!');
+    } catch(err) { showError(err.message||'Could not join.'); }
+  }
+
+  function openGroup(group_id) {
+    sessionStorage.setItem('mtm_group', group_id);
+    window.location.href = 'detail.html';
+  }
+
+  async function loadGroups() {
+    try {
+      const data = await GroupAPI.getAll();
+      allGroups = data.groups || [];
+      filterGroups();
+    } catch(err) {
+      document.getElementById('tripsList').innerHTML=`<div style="text-align:center;padding:40px;color:var(--text-faint);">${err.message}</div>`;
+    }
+  }
+
+  loadGroups();
 </script>
 </body>
 </html>
